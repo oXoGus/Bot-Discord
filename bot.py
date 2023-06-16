@@ -15,11 +15,7 @@ from interactions.ext.paginators import Paginator
 
 conn = sqlite3.connect('CocPlayer.db') # connection a la base de donnée
 cursor = conn.cursor() # creation d'une variable pour interagire avec la base de donnée 
-################################################
-#
-#       bot init                                                                              
-#
-################################################ 
+
 
 TOKEN = "MTExODUzODE2NDI2OTc1MjMyMA.G9au5g.hReBnZrtyN09Cf0oam5cnzqdj4zhNf64TYa9f8"
 intents = discord.Intents.default() # permitions du bot 
@@ -43,8 +39,7 @@ GDCBotheader = {
 async def on_ready(): # quand le bod est pret 
     print(f'{bot.user} est en marche')
 
-
-
+qsdzqdqzdqzdqzdqz
 ################################################
 #
 #       command fonction                                                                               
@@ -163,7 +158,7 @@ async def init_ldc(user_message):
     clan_id = str(user_message[10:])
     clan_api_id = str(user_message[11:])
     url = "https://api.clashofclans.com/v1/clans/%23"+ str(clan_api_id) + "/currentwar/leaguegroup" 
-    response = requests.get(url, headers=header)
+    response = requests.get(url, headers=GDCBotheader)
     setup1 = response.json()
     setup_json = json.dumps(setup1)
     war_tags = json.loads(setup_json)
@@ -178,12 +173,12 @@ def id(user_message):
 def ldc_udate_data(war_tag_id):
     requests_cache.install_cache('api_cache')
     url = "https://api.clashofclans.com/v1/clanwarleagues/wars/%23" + war_tag_id
-    response = requests.get(url, headers=header)
+    response = requests.get(url, headers=GDCBotheader)
     #if not response.from_cache:
     #    requests_cache.cache_response(response)
     #previous_response = requests_cache.get_cache().get(url)
     #if previous_response is not None and previous_response.content != response.content:
-    ldc_info = requests.get(url, headers=header)
+    ldc_info = requests.get(url, headers=GDCBotheader)
     ldc_info = response.json()
     ldc_info = json.dumps(ldc_info)
     ldc_info = json.loads(ldc_info)
@@ -208,7 +203,7 @@ async def ldc_find_war_tag_id(war_tags, clan_id):
             war_tag_id = str(war_tag_id[1:])
             print(war_tags)
             url = "https://api.clashofclans.com/v1/clanwarleagues/wars/%23" + war_tag_id
-            response = requests.get(url, headers=header)
+            response = requests.get(url, headers=GDCBotheader)
             setup2 = response.json()
             setup2_ = json.dumps(setup2)
             setup2_json = json.loads(setup2_)
