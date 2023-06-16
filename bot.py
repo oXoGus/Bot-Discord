@@ -1,6 +1,5 @@
 import json
 import sqlite3
-
 import discord
 import interactions
 import requests
@@ -39,7 +38,7 @@ GDCBotheader = {
 async def on_ready(): # quand le bod est pret 
     print(f'{bot.user} est en marche')
 
-qsdzqdqzdqzdqzdqz
+
 ################################################
 #
 #       command fonction                                                                               
@@ -49,7 +48,7 @@ qsdzqdqzdqzdqzdqz
 
 @slash_command(name = 'recherchejoueur', description = "rechercher des joueur selon leurs stats") # on crée une commande et on initialiser sont nom et sa description 
 async def rechercheJoueur(ctx): # la fonction qui est rattacher a cette commande 
-    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='les joueurs ayant le plus de trophée', custom_id="trophy", ), Button(style=ButtonStyle.BLURPLE, label='les plus actifs dans les jeux de clans', custom_id="jdc"), Button(style=ButtonStyle.BLURPLE, label='les joueur dans un clan français ayant donné le plus de troupes', custom_id="jdc"))] #on crée la partie interactive du message 
+    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='les joueurs ayant le plus de trophée', custom_id="trophy", ), Button(style=ButtonStyle.BLURPLE, label='les plus actifs dans les jeux de clans', custom_id="jdc"), Button(style=ButtonStyle.BLURPLE, label='les joueur dans un clan français ayant donné le plus de troupes', custom_id="don"))] #on crée la partie interactive du message 
     await ctx.send('selectionner les statistiques que vous désirer' , components=components,) # on definis le contenue du message et on rattache la partie interactive du message 
 
 @slash_command(name='dazdaz', description='fsefs')
@@ -62,7 +61,7 @@ async def on_component(event: Component):
     if event.ctx.custom_id == 'trophy':
         embeds = []
         for i in range(25):
-            cursor.execute('SELECT * FROM Player WHERE trophée < 5000 ORDER BY trophée DESC LIMIT 5 OFFSET ?', (0+5*i,))
+            cursor.execute('SELECT * FROM Player ORDER BY trophée DESC, LvlDuClan ASC LIMIT 5 OFFSET ?', (0+5*i,))
             resultat = cursor.fetchall()
             embeds_ = Embed(title='Les joueur dans un clan français ayant le plus de trophée') 
             for line in resultat:
@@ -78,7 +77,7 @@ async def on_component(event: Component):
     elif event.ctx.custom_id == 'jdc':
         embeds = []
         for i in range(25):
-            cursor.execute('SELECT * FROM Player WHERE pointsJDCTotal < 250000 ORDER BY trophée DESC LIMIT 5 OFFSET ?', (0+5*i,))
+            cursor.execute('SELECT * FROM Player ORDER BY pointsJDCTotal DESC, LvlDuClan ASC LIMIT 5 OFFSET ?', (0+5*i,))
             resultat = cursor.fetchall()
             embeds_ = Embed(title='Les joueur dans un clan français ayant fait le plus de point au jeux de clan') 
             for line in resultat:
@@ -91,12 +90,12 @@ async def on_component(event: Component):
         
         await paginator.send(ctx)
 
-    elif event.ctx.custom_id == 'banana':
+    elif event.ctx.custom_id == 'don':
         embeds = []
         for i in range(25):
-            cursor.execute('SELECT * FROM Player WHERE trophée < 5000 ORDER BY trophée DESC LIMIT 5 OFFSET ?', (0+5*i,))
+            cursor.execute('SELECT * FROM Player ORDER BY donnationTotal DESC, LvlDuClan ASC LIMIT 5 OFFSET ?', (0+5*i,))
             resultat = cursor.fetchall()
-            embeds_ = Embed(title='Les joueur dans un clan français ayant le plus de trophée') 
+            embeds_ = Embed(title='Les joueur dans un clan français ayant donnée de troupes') 
             for line in resultat:
                 embed = f'hdv : **{line[0]}**  |  psedo : **{line[1]}**  |  Tag du joueur : **{line[2]}**  |  nombre de trophée : **{line[3]}**  |  Niveau : **{line[4]}**  |  étoiles de guerre : **{line[5]}**  |  préference de guerre : **{line[6]}**  |  capacité de renfort donné : **{line[7]}**  |  point aux jeux de clan totale : **{line[8]}**  |  badge1 : **{line[9]}**  |  badge2 : **{line[10]}**  |  badge3 : **{line[11]}**.'
                 embeds_.add_field(name=line[1], value=embed) # type: ignore
@@ -174,22 +173,22 @@ def ldc_udate_data(war_tag_id):
     requests_cache.install_cache('api_cache')
     url = "https://api.clashofclans.com/v1/clanwarleagues/wars/%23" + war_tag_id
     response = requests.get(url, headers=GDCBotheader)
-    #if not response.from_cache:
-    #    requests_cache.cache_response(response)
-    #previous_response = requests_cache.get_cache().get(url)
-    #if previous_response is not None and previous_response.content != response.content:
-    ldc_info = requests.get(url, headers=GDCBotheader)
-    ldc_info = response.json()
-    ldc_info = json.dumps(ldc_info)
-    ldc_info = json.loads(ldc_info)
-    if float(ldc_info['clan']['destructionPercentage']) < float(ldc_info['opponent']['destructionPercentage']):
-        title = ldc_info['clan']['name'] + '  ' +ldc_info['clan']['stars'] + '   vs   ' + '**' + ldc_info['opponent']['stars'] + '**' + '   **' + ldc_info['opponent']['name'] + '**'
-    else: 
-        title = '**' +ldc_info['clan']['name'] + '**' + '  ' +'**' +ldc_info['clan']['stars']+ '**' + '   vs   ' +  ldc_info['opponent']['stars']  +'  '+  ldc_info['opponent']['name'] 
-    embed_profile = discord.Embed(title=title, description=None, color=discord.Color.random())
-    embed_profile.add_field(name="Champ 1", value="Valeur 1", inline=True)
-    embed_profile.add_field(name="Champ 2", value="Valeur 2", inline=True) 
-    return embed_profile
+    if not response.from_cache:
+        requests_cache.cache_response(response)
+    previous_response = requests_cache.get_cache().get(url)
+    if previous_response is not None and previous_response.content != response.content:
+        ldc_info = requests.get(url, headers=GDCBotheader)
+        ldc_info = response.json()
+        ldc_info = json.dumps(ldc_info)
+        ldc_info = json.loads(ldc_info)
+        if float(ldc_info['clan']['destructionPercentage']) < float(ldc_info['opponent']['destructionPercentage']):
+            title = ldc_info['clan']['name'] + '  ' +ldc_info['clan']['stars'] + '   vs   ' + '**' + ldc_info['opponent']['stars'] + '**' + '   **' + ldc_info['opponent']['name'] + '**'
+        else: 
+            title = '**' +ldc_info['clan']['name'] + '**' + '  ' +'**' +ldc_info['clan']['stars']+ '**' + '   vs   ' +  ldc_info['opponent']['stars']  +'  '+  ldc_info['opponent']['name'] 
+        embed_profile = discord.Embed(title=title, description=None, color=discord.Color.random())
+        embed_profile.add_field(name="Champ 1", value="Valeur 1", inline=True)
+        embed_profile.add_field(name="Champ 2", value="Valeur 2", inline=True) 
+        return embed_profile
 
 
 
@@ -213,10 +212,6 @@ async def ldc_find_war_tag_id(war_tags, clan_id):
                 print('real id is: '+ war_tag_id)
             return war_tag_id
                         
-
-
-
-
 
 
 bot.start() 
