@@ -41,14 +41,16 @@ GDCBotheader = {
 @listen()
 async def on_ready(): # quand le bod est pret 
     print(f'{bot.user} est en marche') #afficher ceci dans le terminal
+    
+###############################################
 
 
-################################################
-#
-#       search commands
-#
-################################################
 
+#       search command
+
+
+
+###############################################
 
 @slash_command(name = 'recherchejoueur', description = "rechercher des joueur selon leurs stats") # on crée une commande et on initialiser sont nom et sa description 
 async def rechercheJoueur(ctx): # la fonction qui est rattacher a cette commande 
@@ -233,16 +235,11 @@ async def gdc(ctx : SlashContext, id):
 
 
             
-<<<<<<< HEAD
-=======
+            
                            
     except Exception:
         traceback.print_exc()
-        await ctx.send('boubipbip')
->>>>>>> 7cfdd114540dc6c73df2f0576fc091db8a09491e
-            
-                           
-    
+        await ctx.send('fesfefsf')
 
 
 
