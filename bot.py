@@ -233,11 +233,16 @@ async def gdc(ctx : SlashContext, id):
 
 
             
-            
+<<<<<<< HEAD
+=======
                            
     except Exception:
         traceback.print_exc()
-        await ctx.send('fesfefsf')
+        await ctx.send('boubipbip')
+>>>>>>> 7cfdd114540dc6c73df2f0576fc091db8a09491e
+            
+                           
+    
 
 
 
