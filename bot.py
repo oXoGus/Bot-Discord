@@ -114,16 +114,21 @@ async def gdc(ctx : SlashContext, id):
                     print(messID)      
   
             while currentwar['state'] == 'inWar':
-                
-
-                time_difference = starTime  -  datetime.now(timezone.utc)
+                endTime = currentwar['endTime']
+                endTime = parser.parse(endTime)
+                time_difference = endTime  -  datetime.now(timezone.utc)
                 hours = time_difference // 3600 
                 minutes = (time_difference % 3600) // 60
-                preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
-                preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
-                await prepartionMessage.edit(embed=preparationEmbed)
-
+                try:
+                    preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                    preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                    preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                    await prepartionMessage.edit(embed=preparationEmbed)
+                except Exception :
+                    preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                    preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                    preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                    prepartionMessage = await channel.send(embed=preparationEmbed)
 
                 for a in range(int(currentwar['teamSize']/5)):
                     clanValue=""
@@ -253,7 +258,17 @@ async def gdc(ctx : SlashContext, id):
                     print(clanValue) 
                     embeds.add_field(name='le clan adverse', value=opponentValue, inline=True )
                     print(opponentValue)
-                    await messID[a].edit(content='',embed=embeds)
+                    try : 
+                        await messID[a].edit(content='',embed=embeds)
+                    except Exception: # si on ne peut pas modifier le message parce que les 15 minute apres l'envoie du message sont passé
+                        for e in range(len(messID)): # on supprime tout les messages qui ont été envoyées
+                            await messID[e].delete()
+                        messID=[] # on reinisialise la liste des messages 
+                        for jsp in range(int(currentwar['teamSize']/5)): # on réenvoie les messages
+                            warMessage = await channel.send(content='yo !')
+                            messID.append(warMessage)
+
+
                     await asyncio.sleep(60)
                     response = requests.get(url, headers=GDCBotheader) 
                     currentwar = response.json()  
@@ -263,10 +278,10 @@ async def gdc(ctx : SlashContext, id):
                 if currentwar['state'] == 'warEnded':
                     warEndedEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
                     warEndedEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-                    warEndedEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"{'\nVous avez gagnée le guerre' if }",  inline=False)
+                    warEndedEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + {'\nVous avez gagnée le guerre' if a == 1 else "z"},  inline=False)
                     warEndedMessage = await channel.send(embed=warEndedEmbed)
                 while currentwar['state'] == 'warEnded':
-
+                    pass
 
 
             
@@ -281,15 +296,7 @@ async def gdc(ctx : SlashContext, id):
 @slash_command(name = 'pa', description = "afficher les stats d'un joueur")
 async def pa(ctx: SlashContext):
     channel = ctx.channel
-    url = f"https://api.clashofclans.com/v1/clans/%23{id}/currentwar"
-    response = requests.get(url, headers=GDCBotheader) 
-    currentwar = response.json()  
-    currentwar = json.dumps(currentwar)
-    currentwar = json.loads(currentwar)
-    opponentInfo = currentwar['opponent']
-    clanInfo = currentwar['clan']
     embed = Embed(title="stats du joueur", color=interactions.Color.from_rgb(255, 128, 0))
-    await ctx.send(content=f"**La guerre a été déclarée contre [{opponentInfo['name']}](https://www.clashofstats.com/clans/{opponentInfo['name']}-{opponentInfo['tag']}/members/) !**")
     try:
         messID=[]
         for jsp in range(4):
@@ -299,6 +306,8 @@ async def pa(ctx: SlashContext):
         for i in range(4):
             await messID[i].edit(content='',embed=embed)
             print(messID[i])
+        for i in range(4):
+            await messID[i].delete()
         
 
     except Exception:
@@ -401,37 +410,8 @@ async def on_component(event: Component):
 #       ldc command                                                                              
 #
 ################################################
-
-
-def ldcsetup(ctx): 
-    ldc(ctx)
-    return ctx     
-
-
-# ldc preview in one select channel update if sth is new
-def ldc(user_message, war_tag_id, war_tags):
-    return
-    #init_ldc(user_message)
-    #ldc_find_war_tag_id(war_tags, war_tag_id)
-# ldc preview in one select channel update if sth is new
-
-
-async def init_ldc(user_message):
-    clan_id = str(user_message[10:])
-    clan_api_id = str(user_message[11:])
-    url = "https://api.clashofclans.com/v1/clans/%23"+ str(clan_api_id) + "/currentwar/leaguegroup" 
-    response = requests.get(url, headers=GDCBotheader)
-    setup1 = response.json()
-    setup_json = json.dumps(setup1)
-    war_tags = json.loads(setup_json)
-    return war_tags
-
-
-def id(user_message):
-    clan_id = str(user_message[10:])
-    return clan_id
-
-
+   
+"""
 def ldc_udate_data(war_tag_id):
     requests_cache.install_cache('api_cache')
     url = "https://api.clashofclans.com/v1/clanwarleagues/wars/%23" + war_tag_id
@@ -451,34 +431,232 @@ def ldc_udate_data(war_tag_id):
         embed_profile = discord.Embed(title=title, description=None, color=discord.Color.random())
         embed_profile.add_field(name="Champ 1", value="Valeur 1", inline=True)
         embed_profile.add_field(name="Champ 2", value="Valeur 2", inline=True) 
-        return embed_profile
+        return embed_profile"""
     
 
 # ldc preview in one select channel update if sth is new
 @slash_command(name = 'ldc', description = "afficher les guerre dans ce channel")
 @slash_option(name = 'tag', description="tag du clan", required=True, opt_type=OptionType.STRING )
-async def ldc_find_war_tag_id(ctx : SlashContext, tag):
-    channel = ctx.channel
-    url = f"https://api.clashofclans.com/v1/clans/%23{tag}/currentwar/leaguegroup" 
+async def ldc(ctx : SlashContext, tag):
+    channel = ctx.channel    
+    warTagId = await ldc_find_war_tag_id(tag)
+    while warTagId is not None:
+        url = f"https://api.clashofclans.com/v1/clanwarleagues/wars/%23{warTagId}"
+        response = requests.get(url, headers=GDCBotheader)
+        ldcWar = response.json()
+        ldcWar = json.dumps(ldcWar)
+        ldcWar = json.loads(ldcWar)
+        clanInfo = ldcWar['clan']
+        opponentInfo = ldcWar['opponent']
+        endTime = ldcWar['endTime']
+        endTime = parser.parse(endTime)
+        time_difference = endTime  -  datetime.now(timezone.utc)
+        hours = time_difference.seconds // 3600 
+        minutes = (time_difference.seconds % 3600) // 60
+        preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+        preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+        preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+        prepartionMessage = await channel.send(embed=preparationEmbed)
+        
+
+        messID = []
+        for jsp in range(int(ldcWar['teamSize']/5)):
+            warMessage = await channel.send(content='yo !')
+            messID.append(warMessage)
+        while True :
+            url = f"https://api.clashofclans.com/v1/clanwarleagues/wars/%23{warTagId}"
+            response = requests.get(url, headers=GDCBotheader)
+            ldcWar = response.json()
+            ldcWar = json.dumps(ldcWar)
+            ldcWar = json.loads(ldcWar)
+
+
+            if ldcWar['state'] == 'warEnded':
+                break
+            
+            
+            # on recupere toutes les informations sur le clan
+            clanInfo = ldcWar['clan']
+            clanMemberInfo = clanInfo['members']
+            clanMemberInfo = sorted(clanMemberInfo, key= lambda x : x['townhallLevel'], reverse=True)# on ordonne les joueurs de la guerre en fonction de leur position dans la guerre
+            # on recupere toutes les informations sur le clan
+            opponentInfo = ldcWar['opponent'] 
+            opponentMemberInfo = opponentInfo['members']
+            opponentMemberInfo = sorted(opponentMemberInfo, key= lambda x : x['townhallLevel'], reverse=True)# on ordonne les joueurs de la guerre en fonction de leur position dans la guerre
+
+
+            endTime = ldcWar['endTime']
+            endTime = parser.parse(endTime)
+            time_difference = endTime  -  datetime.now(timezone.utc)
+            hours = time_difference.seconds // 3600 
+            minutes = (time_difference.seconds % 3600) // 60
+            try:
+                preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                await prepartionMessage.edit(embed=preparationEmbed)
+            except Exception :
+                prepartionMessage.delete()
+                preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                prepartionMessage = await channel.send(embed=preparationEmbed)
+
+
+                                
+
+
+
+            for a in range(int(ldcWar['teamSize']/5)):
+                clanValue=""
+                opponentValue =""
+                embeds = Embed(color=interactions.Color.from_rgb(255, 128, 0))
+                for i in range(5):
+                    i = i + a * 5
+                    try:
+                        for z in range(len(opponentMemberInfo)):
+                            if opponentMemberInfo[z]['tag'] == clanMemberInfo[i]['bestOpponentAttack']['attackerTag']:
+                                opponentMemberInfodef = opponentMemberInfo[z]['mapPosition']
+                                opponentMemberInfodefName = opponentMemberInfo[z]['name']
+                                break
+                        try:
+                            clanValue = clanValue + "**{}. {}** {}  {} \n\n".format(
+                                i+1,
+                                clanMemberInfo[i]['name'],
+                                ("" if len(clanMemberInfo[i]['attacks']) == 1 else ":crossed_swords:" ),
+                                "{} :star::star::star:".format(
+                                    opponentMemberInfodefName
+                                ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                    "{} :star::star:".format(
+                                        opponentMemberInfodefName
+                                    ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                        "{} :star:".format(
+                                            opponentMemberInfodefName
+                                        ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else 
+                                        "{}: 0 étoile".format(
+                                                opponentMemberInfodefName
+                                        )
+                                    )
+                                )
+                            )
+                        except Exception: 
+                            clanValue = clanValue + "**{}. {} :crossed_swords: ** {} \n\n".format(
+                                i+1,
+                                clanMemberInfo[i]['name'],
+                                "{} :star::star::star:".format(
+                                    opponentMemberInfodefName
+                                ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                    "{} :star::star:".format(
+                                        opponentMemberInfodefName
+                                    ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                        "{} :star:".format(
+                                            opponentMemberInfodefName
+                                        ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else 
+                                        "{}: 0 étoile".format(
+                                                opponentMemberInfodefName
+                                        )
+                                    )
+                                )
+                            )
+                    except Exception:
+                        try:
+                            clanValue = clanValue + f"**{i+1}. {clanMemberInfo[i]['name']} {'' if len(clanMemberInfo[i]['attacks']) == 1 else ':crossed_swords:' }** n'a pas encore été attaqué\n\n"
+                        except Exception:
+                            clanValue = clanValue + f"**{i+1}. {clanMemberInfo[i]['name']} :crossed_swords:** n'a pas encore été attaqué \n\n"
+                    try:
+                        for z in range(len(clanMemberInfo)):
+                            if clanMemberInfo[z]['tag'] == opponentMemberInfo[i]['bestOpponentAttack']['attackerTag']:
+                                opponentMemberInfodef = clanMemberInfo[z]['mapPosition']
+                                opponentMemberInfodefName = clanMemberInfo[z]['name']
+                                break
+                        try : 
+                            opponentValue = opponentValue + " **{}. {} {}** {} \n\n".format(
+                                i+1,
+                                    opponentMemberInfo[i]['name'], 
+                                        ("" if len(opponentMemberInfo[i]['attacks']) == 1 else ":crossed_swords:" ), 
+                                    "{}: :star::star::star:".format(
+                                        opponentMemberInfodefName
+                                    ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                        "{}: :star::star:".format(
+                                            opponentMemberInfodefName
+                                        ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                            "{}: :star:".format(
+                                                opponentMemberInfodefName
+                                            ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else
+                                            "{}: 0 étoile".format(
+                                                opponentMemberInfodefName
+                                            )
+                                        )
+                                    )
+                                )
+                        except Exception: 
+                            opponentValue = opponentValue + " **{}. {} :crossed_swords:** {} \n\n".format(
+                                i+1,
+                                    opponentMemberInfo[i]['name'], 
+                                    "{}: :star::star::star:".format(
+                                        opponentMemberInfodefName
+                                    ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                        "{}: :star::star:".format(
+                                            opponentMemberInfodefName
+                                        ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                            "{}. {}: :star:".format(
+                                                opponentMemberInfodefName
+                                            ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else
+                                            "{}: 0 étoile".format(
+                                                opponentMemberInfodefName
+                                            )
+                                        )
+                                    )
+                                )
+                    except Exception : 
+                        try:
+                            opponentValue = opponentValue + f" **{i+1}. {opponentMemberInfo[i]['name']} {'' if len(opponentMemberInfo[i]['attacks']) == 1 else ':crossed_swords:'}** n'a pas encore été attaqué\n\n"
+                        except Exception:
+                            opponentValue = opponentValue + f" **{i+1}. {opponentMemberInfo[i]['name']} :crossed_swords:** n'a pas encore été attaqué\n\n"
+                embeds.add_field(name='votre clan' , value=clanValue , inline=True)
+                print(clanValue) 
+                embeds.add_field(name='le clan adverse', value=opponentValue, inline=True )
+                print(opponentValue)
+                try : 
+                    await messID[a].edit(content='',embed=embeds)
+                except Exception: # si on ne peut pas modifier le message parce que les 15 minute apres l'envoie du message sont passé
+                    for e in range(int(ldcWar['teamSize']/5)): # on supprime tout les messages qui ont été envoyées
+                        await messID[e].delete()
+                    messID=[] # on reinisialise la liste des messages 
+                    for jsp in range(int(ldcWar['teamSize']/5)): # on réenvoie les messages
+                        warMessage = await channel.send(content='yo !')
+                        messID.append(warMessage)
+            await asyncio.sleep(60)
+        warTagId = await ldc_find_war_tag_id(tag)
+
+
+
+
+
+
+async def ldc_find_war_tag_id(tag):
+    tagID = tag[1:]
+    url = f"https://api.clashofclans.com/v1/clans/%23{tagID}/currentwar/leaguegroup" 
     response = requests.get(url, headers=GDCBotheader)
-    setup1 = response.json()
-    setup_json = json.dumps(setup1)
-    war_tags = json.loads(setup_json)
+    war_tags = response.json()
+    war_tags = json.dumps(war_tags)
+    war_tags = json.loads(war_tags)
     for round in war_tags['rounds']:
         for war_tags in round['warTags']:
             war_tag_id = war_tags
             war_tag_id = str(war_tag_id[1:])
-            print(war_tags)
             url = f"https://api.clashofclans.com/v1/clanwarleagues/wars/%23{war_tag_id}"
             response = requests.get(url, headers=GDCBotheader)
             ldcWar = response.json()
             ldcWar = json.dumps(ldcWar)
             ldcWar = json.loads(ldcWar)
+            await asyncio.sleep(1)
             if war_tags == '#0':
                 break
             elif (ldcWar['clan']['tag'] == tag or ldcWar['opponent']['tag'] == tag) and ldcWar['state'] == 'inWar':
                 print('real id is: '+ war_tag_id)
-            
+                return war_tag_id
+
                         
 
 bot.start() 
