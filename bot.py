@@ -5,7 +5,7 @@ import interactions
 import requests
 import requests_cache
 from discord.ext import commands
-from interactions import (Button, ButtonStyle, OptionType, SlashContext, ActionRow, StringSelectMenu, Embed, listen, slash_command, slash_option)
+from interactions import (Button, ButtonStyle, OptionType, SlashContext, ActionRow, StringSelectMenu, Embed, Intents, listen, slash_command, slash_option)
 from interactions.api.events import Component
 from interactions.ext.paginators import Paginator
 from datetime import datetime, timezone
@@ -13,6 +13,9 @@ from dateutil import parser
 import traceback
 from interactions import slash_command, SlashContext, Modal, ShortText, ParagraphText
 import time
+import asyncio
+
+from config import TOKEN, GDCBotheader
 
 # todo: faire while currentwar == inwar ... et pereil pour les autre status
 
@@ -20,16 +23,7 @@ conn = sqlite3.connect('CocPlayer.db') # connection a la base de donnée
 cursor = conn.cursor() # creation d'une variable pour interagire avec la base de donnée 
 
 
-TOKEN = "MTExODUzODE2NDI2OTc1MjMyMA.G9au5g.hReBnZrtyN09Cf0oam5cnzqdj4zhNf64TYa9f8"
-intents = discord.Intents.default() # permitions du bot 
-intents.message_content = True
-intents.presences = True
-intents.members = True
-bot = interactions.Client(token=TOKEN) # crée le bot
-
-GDCBotheader = {
-    'authorization' : 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImMzYzAzNDE0LTcyYTQtNDYxZC04YTA1LTA4NTE5NjIzM2ZmNSIsImlhdCI6MTY4Njc2OTk1Niwic3ViIjoiZGV2ZWxvcGVyLzc4ZjdjMzM2LWM2NjUtYzdmYi0xYzhkLTE0YjlhZTY4NjEwMiIsInNjb3BlcyI6WyJjbGFzaCJdLCJsaW1pdHMiOlt7InRpZXIiOiJkZXZlbG9wZXIvc2lsdmVyIiwidHlwZSI6InRocm90dGxpbmcifSx7ImNpZHJzIjpbIjgxLjY0LjI1NS4xMTkiXSwidHlwZSI6ImNsaWVudCJ9XX0._YGz_-sXj7XvIDH9sM9KqggUVK9VpkwKaYbk87VESOH3WAfMWoOOXkVmvimNrVs-REoSyveWaEjvx5M3S6BAPQ'
-} # header pour l'api de clash of clan
+bot = interactions.Client(token=TOKEN, intents=Intents.ALL) # crée le bot
 
 
 ################################################
@@ -44,11 +38,7 @@ async def on_ready(): # quand le bod est pret
     
 ###############################################
 
-
-
 #       search command
-
-
 
 ###############################################
 
@@ -70,183 +60,253 @@ async def rechercheJoueur(ctx): # la fonction qui est rattacher a cette commande
 async def gdc(ctx : SlashContext, id):
     channel = ctx.channel
     id=id[1:]
+    url = f"https://api.clashofclans.com/v1/clans/%23{id}/currentwar"
+    while True:
+        try:
+            
 
-    try:
-        url = f"https://api.clashofclans.com/v1/clans/%23{id}/currentwar"
-        response = requests.get(url, headers=GDCBotheader)
-        currentwar = response.json()  
-        currentwar = json.dumps(currentwar)
-        currentwar = json.loads(currentwar)
-        starTime = currentwar['startTime']
-        starTime = parser.parse(starTime)
-        time_difference = starTime  -  datetime.now(timezone.utc)
-        hours = time_difference.seconds // 3600 
-        minutes = (time_difference.seconds % 3600) // 60
-        clanInfo = currentwar['clan']
-        clanMemberInfo = clanInfo['members']
-        clanMemberInfo = sorted(clanMemberInfo, key= lambda x : x['mapPosition'])
-        opponentInfo = currentwar['opponent']
-        opponentMemberInfo = opponentInfo['members']
-        opponentMemberInfo = sorted(opponentMemberInfo, key= lambda x : x['mapPosition'])
-        embed = Embed(title = f"**{clanInfo['name']}   {clanInfo['stars']}**          vs           {opponentInfo['stars']}   {opponentInfo['name']}" if float(clanInfo['destructionPercentage']) > float(opponentInfo['destructionPercentage']) else f"{clanInfo['name']} {clanInfo['stars']}   vs   **{opponentInfo['stars']}   {opponentInfo['name']}**", color=interactions.Color.from_rgb(255, 128, 0))
-        embed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-        embed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**" if currentwar['state'] == 'inWar' else (f"\n**la guerre commence dans : {int(hours)} heures et {int(minutes)} minutes**" if currentwar['state'] == 'preparation'else 'la guerre est terminé !'),  inline=False)
-        message = await ctx.send(embed=embed)
-        print(int(currentwar['teamSize']/5))
-        while currentwar['state'] == 'preparation':
-            time_difference = starTime  -  datetime.now(timezone.utc)
-            hours = time_difference.seconds // 3600 
-            minutes = (time_difference.seconds % 3600) // 60
-            preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
-            preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-            preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre commence dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
-            await ctx.edit(message=message,embed=preparationEmbed)
-            time.sleep(1)
-        for a in range(int(currentwar['teamSize']/5)):
-            clanValue=""
-            opponentValue =""
-            embeds = Embed(color=interactions.Color.from_rgb(255, 128, 0))
-            for i in range(5):
-                i = i + a * 5
-                try:
-                    for z in range(len(opponentMemberInfo)):
-                        if opponentMemberInfo[z]['tag'] == clanMemberInfo[i]['bestOpponentAttack']['attackerTag']:
-                            opponentMemberInfodef = opponentMemberInfo[z]['mapPosition']
-                            opponentMemberInfodefName = opponentMemberInfo[z]['name']
-                            break
-                    try:
-                        clanValue = clanValue + "**{}. {}** {}  {} \n\n".format(
-                            clanMemberInfo[i]['mapPosition'],
-                            clanMemberInfo[i]['name'],
-                            ("" if len(clanMemberInfo[i]['attacks']) == 2 else ":crossed_swords:" ),
-                            "{}. {} :star::star::star:".format(
-                                opponentMemberInfodef,
-                                opponentMemberInfodefName
-                            ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
-                                "{}. {} :star::star:".format(
-                                    opponentMemberInfodef,
-                                    opponentMemberInfodefName
-                                ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
-                                    "{}. {} :star:".format(
-                                        opponentMemberInfodef,
-                                        opponentMemberInfodefName
-                                    ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else 
-                                    "{}. {}: 0 étoile".format(
-                                            opponentMemberInfodef,
-                                            opponentMemberInfodefName
-                                    )
-                                )
-                            )
-                        )
-                    except Exception: 
-                        clanValue = clanValue + "**{}. {} :crossed_swords::crossed_swords: ** {} \n\n".format(
-                            clanMemberInfo[i]['mapPosition'],
-                            clanMemberInfo[i]['name'],
-                            "{}. {} :star::star::star:".format(
-                                opponentMemberInfodef,
-                                opponentMemberInfodefName
-                            ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
-                                "{}. {} :star::star:".format(
-                                    opponentMemberInfodef,
-                                    opponentMemberInfodefName
-                                ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
-                                    "{}. {} :star:".format(
-                                        opponentMemberInfodef,
-                                        opponentMemberInfodefName
-                                    ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else 
-                                    "{}. {}: 0 étoile".format(
-                                            opponentMemberInfodef,
-                                            opponentMemberInfodefName
-                                    )
-                                )
-                            )
-                        )
-                except Exception:
-                    try:
-                        clanValue = clanValue + f"**{clanMemberInfo[i]['mapPosition']}. {clanMemberInfo[i]['name']} {'' if len(clanMemberInfo[i]['attacks']) == 2 else ':crossed_swords:' }** n'a pas encore été attaqué\n\n"
-                    except Exception:
-                        clanValue = clanValue + f"**{clanMemberInfo[i]['mapPosition']}. {clanMemberInfo[i]['name']} :crossed_swords::crossed_swords:** n'a pas encore été attaqué \n\n"
+            response = requests.get(url, headers=GDCBotheader) 
+            currentwar = response.json()  
+            currentwar = json.dumps(currentwar)
+            currentwar = json.loads(currentwar)
 
-                try:
-                    for z in range(len(clanMemberInfo)):
-                        if clanMemberInfo[z]['tag'] == opponentMemberInfo[i]['bestOpponentAttack']['attackerTag']:
-                            opponentMemberInfodef = clanMemberInfo[z]['mapPosition']
-                            opponentMemberInfodefName = clanMemberInfo[z]['name']
-                            break
-                    try : 
-                        opponentValue = opponentValue + " **{}. {} {}** {} \n\n".format(
-                            opponentMemberInfo[i]['mapPosition'],
-                                opponentMemberInfo[i]['name'], 
-                                    ("" if len(opponentMemberInfo[i]['attacks']) == 2 else ":crossed_swords:" ), 
-                                "{}. {}: :star::star::star:".format(
-                                    opponentMemberInfodef,
-                                    opponentMemberInfodefName
-                                ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
-                                    "{}. {}: :star::star:".format(
+
+            if currentwar['state'] == 'notInWar': # si le clan n'est pas dans une guerre 
+                await ctx.send(content="Ce clan n'est actuellement pas en guerre ! refaite la commande quand le clan aura trouver une guerre.")# on met l'embed dans une variable pour le modifier
+                break
+
+            
+            # on recupere toutes les informations sur le clan
+            clanInfo = currentwar['clan']
+            clanMemberInfo = clanInfo['members']
+            clanMemberInfo = sorted(clanMemberInfo, key= lambda x : x['mapPosition'])# on ordonne les joueurs de la guerre en fonction de leur position dans la guerre
+            # on recupere toutes les informations sur le clan
+            opponentInfo = currentwar['opponent'] 
+            opponentMemberInfo = opponentInfo['members']
+            opponentMemberInfo = sorted(opponentMemberInfo, key= lambda x : x['mapPosition'])# on ordonne les joueurs de la guerre en fonction de leur position dans la guerre
+            
+
+            if currentwar['state'] == 'preparation': # si le clan est en preparation  
+                await channel.send(content=f"**La guerre a été déclarée contre [{opponentInfo['name']}](https://www.clashofstats.com/clans/{opponentInfo['name']}-{opponentInfo['tag']}/members/) !**")     
+                prepartionMessage = await channel.send(content='tkt')
+            
+
+            while currentwar['state'] == 'preparation':
+                starTime = currentwar['startTime']
+                starTime = parser.parse(starTime)
+                time_difference = starTime  -  datetime.now(timezone.utc)
+                hours = time_difference // 3600 
+                minutes = (time_difference % 3600) // 60
+                preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre commence dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                await prepartionMessage.edit(embed=preparationEmbed)
+                await asyncio.sleep(60)
+                response = requests.get(url, headers=GDCBotheader) 
+                currentwar = response.json()  
+                currentwar = json.dumps(currentwar)
+                currentwar = json.loads(currentwar)
+
+            if currentwar['state'] == 'inWar': # si le clan est dans une guerre 
+                messID=[]
+                for jsp in range(int(currentwar['teamSize']/5)):
+                    warMessage = await channel.send(content='yo !')
+                    messID.append(warMessage)
+                    print(messID)      
+  
+            while currentwar['state'] == 'inWar':
+                
+
+                time_difference = starTime  -  datetime.now(timezone.utc)
+                hours = time_difference // 3600 
+                minutes = (time_difference % 3600) // 60
+                preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                await prepartionMessage.edit(embed=preparationEmbed)
+
+
+                for a in range(int(currentwar['teamSize']/5)):
+                    clanValue=""
+                    opponentValue =""
+                    embeds = Embed(color=interactions.Color.from_rgb(255, 128, 0))
+                    for i in range(5):
+                        i = i + a * 5
+                        try:
+                            for z in range(len(opponentMemberInfo)):
+                                if opponentMemberInfo[z]['tag'] == clanMemberInfo[i]['bestOpponentAttack']['attackerTag']:
+                                    opponentMemberInfodef = opponentMemberInfo[z]['mapPosition']
+                                    opponentMemberInfodefName = opponentMemberInfo[z]['name']
+                                    break
+                            try:
+                                clanValue = clanValue + "**{}. {}** {}  {} \n\n".format(
+                                    clanMemberInfo[i]['mapPosition'],
+                                    clanMemberInfo[i]['name'],
+                                    ("" if len(clanMemberInfo[i]['attacks']) == 2 else ":crossed_swords:" ),
+                                    "{}. {} :star::star::star:".format(
                                         opponentMemberInfodef,
                                         opponentMemberInfodefName
-                                    ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
-                                        "{}. {}: :star:".format(
+                                    ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                        "{}. {} :star::star:".format(
                                             opponentMemberInfodef,
                                             opponentMemberInfodefName
-                                        ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else
-                                        "{}. {}: 0 étoile".format(
-                                            opponentMemberInfodef,
-                                            opponentMemberInfodefName
+                                        ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                            "{}. {} :star:".format(
+                                                opponentMemberInfodef,
+                                                opponentMemberInfodefName
+                                            ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else 
+                                            "{}. {}: 0 étoile".format(
+                                                    opponentMemberInfodef,
+                                                    opponentMemberInfodefName
+                                            )
                                         )
                                     )
                                 )
-                            )
-                    except Exception: 
-                        opponentValue = opponentValue + " **{}. {} :crossed_swords::crossed_swords:** {} \n\n".format(
-                            opponentMemberInfo[i]['mapPosition'],
-                                opponentMemberInfo[i]['name'], 
-
-                                "{}. {}: :star::star::star:".format(
-                                    opponentMemberInfodef,
-                                    opponentMemberInfodefName
-                                ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
-                                    "{}. {}: :star::star:".format(
+                            except Exception: 
+                                clanValue = clanValue + "**{}. {} :crossed_swords::crossed_swords: ** {} \n\n".format(
+                                    clanMemberInfo[i]['mapPosition'],
+                                    clanMemberInfo[i]['name'],
+                                    "{}. {} :star::star::star:".format(
                                         opponentMemberInfodef,
                                         opponentMemberInfodefName
-                                    ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
-                                        "{}. {}: :star:".format(
+                                    ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                        "{}. {} :star::star:".format(
                                             opponentMemberInfodef,
                                             opponentMemberInfodefName
-                                        ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else
-                                        "{}. {}: 0 étoile".format(
-                                            opponentMemberInfodef,
-                                            opponentMemberInfodefName
+                                        ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                            "{}. {} :star:".format(
+                                                opponentMemberInfodef,
+                                                opponentMemberInfodefName
+                                            ) if clanMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else 
+                                            "{}. {}: 0 étoile".format(
+                                                    opponentMemberInfodef,
+                                                    opponentMemberInfodefName
+                                            )
                                         )
                                     )
                                 )
-                            )
-                except Exception : 
-                    try:
-                        opponentValue = opponentValue + f" **{opponentMemberInfo[i]['mapPosition']}. {opponentMemberInfo[i]['name']} {'' if len(opponentMemberInfo[i]['attacks']) == 2 else ':crossed_swords:' }** n'a pas encore été attaqué\n\n"
-                    except Exception:
-                        opponentValue = opponentValue + f" **{opponentMemberInfo[i]['mapPosition']}. {opponentMemberInfo[i]['name']} :crossed_swords::crossed_swords:** n'a pas encore été attaqué\n\n"
-            embeds.add_field(name='votre clan' , value=clanValue , inline=True)
-            print(clanValue) 
-            embeds.add_field(name='le clan adverse', value=opponentValue, inline=True )
-            print(opponentValue)
-            message =  await channel.send(embed=embeds)
-            message.edit(content='ptn yes')
+                        except Exception:
+                            try:
+                                clanValue = clanValue + f"**{clanMemberInfo[i]['mapPosition']}. {clanMemberInfo[i]['name']} {'' if len(clanMemberInfo[i]['attacks']) == 2 else ':crossed_swords:' }** n'a pas encore été attaqué\n\n"
+                            except Exception:
+                                clanValue = clanValue + f"**{clanMemberInfo[i]['mapPosition']}. {clanMemberInfo[i]['name']} :crossed_swords::crossed_swords:** n'a pas encore été attaqué \n\n"
+
+                        try:
+                            for z in range(len(clanMemberInfo)):
+                                if clanMemberInfo[z]['tag'] == opponentMemberInfo[i]['bestOpponentAttack']['attackerTag']:
+                                    opponentMemberInfodef = clanMemberInfo[z]['mapPosition']
+                                    opponentMemberInfodefName = clanMemberInfo[z]['name']
+                                    break
+                            try : 
+                                opponentValue = opponentValue + " **{}. {} {}** {} \n\n".format(
+                                    opponentMemberInfo[i]['mapPosition'],
+                                        opponentMemberInfo[i]['name'], 
+                                            ("" if len(opponentMemberInfo[i]['attacks']) == 2 else ":crossed_swords:" ), 
+                                        "{}. {}: :star::star::star:".format(
+                                            opponentMemberInfodef,
+                                            opponentMemberInfodefName
+                                        ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                            "{}. {}: :star::star:".format(
+                                                opponentMemberInfodef,
+                                                opponentMemberInfodefName
+                                            ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                                "{}. {}: :star:".format(
+                                                    opponentMemberInfodef,
+                                                    opponentMemberInfodefName
+                                                ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else
+                                                "{}. {}: 0 étoile".format(
+                                                    opponentMemberInfodef,
+                                                    opponentMemberInfodefName
+                                                )
+                                            )
+                                        )
+                                    )
+                            except Exception: 
+                                opponentValue = opponentValue + " **{}. {} :crossed_swords::crossed_swords:** {} \n\n".format(
+                                    opponentMemberInfo[i]['mapPosition'],
+                                        opponentMemberInfo[i]['name'], 
+
+                                        "{}. {}: :star::star::star:".format(
+                                            opponentMemberInfodef,
+                                            opponentMemberInfodefName
+                                        ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 3 else (
+                                            "{}. {}: :star::star:".format(
+                                                opponentMemberInfodef,
+                                                opponentMemberInfodefName
+                                            ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 2 else (
+                                                "{}. {}: :star:".format(
+                                                    opponentMemberInfodef,
+                                                    opponentMemberInfodefName
+                                                ) if opponentMemberInfo[i]['bestOpponentAttack']['stars'] == 1 else
+                                                "{}. {}: 0 étoile".format(
+                                                    opponentMemberInfodef,
+                                                    opponentMemberInfodefName
+                                                )
+                                            )
+                                        )
+                                    )
+                        except Exception : 
+                            try:
+                                opponentValue = opponentValue + f" **{opponentMemberInfo[i]['mapPosition']}. {opponentMemberInfo[i]['name']} {'' if len(opponentMemberInfo[i]['attacks']) == 2 else ':crossed_swords:' }** n'a pas encore été attaqué\n\n"
+                            except Exception:
+                                opponentValue = opponentValue + f" **{opponentMemberInfo[i]['mapPosition']}. {opponentMemberInfo[i]['name']} :crossed_swords::crossed_swords:** n'a pas encore été attaqué\n\n"
+                    embeds.add_field(name='votre clan' , value=clanValue , inline=True)
+                    print(clanValue) 
+                    embeds.add_field(name='le clan adverse', value=opponentValue, inline=True )
+                    print(opponentValue)
+                    await messID[a].edit(content='',embed=embeds)
+                    await asyncio.sleep(60)
+                    response = requests.get(url, headers=GDCBotheader) 
+                    currentwar = response.json()  
+                    currentwar = json.dumps(currentwar)
+                    currentwar = json.loads(currentwar)
+                
+                if currentwar['state'] == 'warEnded':
+                    warEndedEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                    warEndedEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                    warEndedEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"{'\nVous avez gagnée le guerre' if }",  inline=False)
+                    warEndedMessage = await channel.send(embed=warEndedEmbed)
+                while currentwar['state'] == 'warEnded':
+
 
 
             
             
                            
-    except Exception:
-        traceback.print_exc()
-        await ctx.send('fesfefsf')
+        except Exception:
+            traceback.print_exc()
+            await ctx.send('veuiller reessayer plus tard')
 
 
 
 @slash_command(name = 'pa', description = "afficher les stats d'un joueur")
-async def _p(ctx: SlashContext):
-    message = await ctx.send(embeds=Embed(title='????'))
-    await ctx.edit(message=message, embed=Embed(title='////////////////////////////////'))
+async def pa(ctx: SlashContext):
+    channel = ctx.channel
+    url = f"https://api.clashofclans.com/v1/clans/%23{id}/currentwar"
+    response = requests.get(url, headers=GDCBotheader) 
+    currentwar = response.json()  
+    currentwar = json.dumps(currentwar)
+    currentwar = json.loads(currentwar)
+    opponentInfo = currentwar['opponent']
+    clanInfo = currentwar['clan']
+    embed = Embed(title="stats du joueur", color=interactions.Color.from_rgb(255, 128, 0))
+    await ctx.send(content=f"**La guerre a été déclarée contre [{opponentInfo['name']}](https://www.clashofstats.com/clans/{opponentInfo['name']}-{opponentInfo['tag']}/members/) !**")
+    try:
+        messID=[]
+        for jsp in range(4):
+            warMessage = await channel.send(content='yo !')
+            messID.append(warMessage)
+        print(messID)
+        for i in range(4):
+            await messID[i].edit(content='',embed=embed)
+            print(messID[i])
+        
+
+    except Exception:
+        traceback.print_exc()
+  
+
+
 ################################################
 #
 #        coc profile command
@@ -264,6 +324,8 @@ async def p(ctx : SlashContext, tag : str) :
         user_json = response.json()  
         user_json = json.dumps(user_json)
         user_json = json.loads(user_json)      
+        
+
         # embed message
         embed_profile = discord.Embed(title=user_json['name'], description="profil d'"+ user_json['name'], color=discord.Color.random())
         embed_profile.add_field(name="Champ 1", value="Valeur 1", inline=False)
