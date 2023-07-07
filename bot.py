@@ -3,7 +3,6 @@ import sqlite3
 import discord
 import interactions
 import requests
-import requests_cache
 from discord.ext import commands
 from interactions import (Button, ButtonStyle, OptionType, SlashContext, ActionRow, StringSelectMenu, Embed, Intents, listen, slash_command, slash_option)
 from interactions.api.events import Component
@@ -456,22 +455,30 @@ def ldc_udate_data(war_tag_id):
     
 
 # ldc preview in one select channel update if sth is new
-async def ldc_find_war_tag_id(war_tags, clan_id):
+@slash_command(name = 'ldc', description = "afficher les guerre dans ce channel")
+@slash_option(name = 'tag', description="tag du clan", required=True, opt_type=OptionType.STRING )
+async def ldc_find_war_tag_id(ctx : SlashContext, tag):
+    channel = ctx.channel
+    url = f"https://api.clashofclans.com/v1/clans/%23{tag}/currentwar/leaguegroup" 
+    response = requests.get(url, headers=GDCBotheader)
+    setup1 = response.json()
+    setup_json = json.dumps(setup1)
+    war_tags = json.loads(setup_json)
     for round in war_tags['rounds']:
         for war_tags in round['warTags']:
             war_tag_id = war_tags
             war_tag_id = str(war_tag_id[1:])
             print(war_tags)
-            url = "https://api.clashofclans.com/v1/clanwarleagues/wars/%23" + war_tag_id
+            url = f"https://api.clashofclans.com/v1/clanwarleagues/wars/%23{war_tag_id}"
             response = requests.get(url, headers=GDCBotheader)
-            setup2 = response.json()
-            setup2_ = json.dumps(setup2)
-            setup2_json = json.loads(setup2_)
+            ldcWar = response.json()
+            ldcWar = json.dumps(ldcWar)
+            ldcWar = json.loads(ldcWar)
             if war_tags == '#0':
                 break
-            elif (setup2_json['clan']['tag'] == clan_id or setup2_json['opponent']['tag'] == clan_id) and setup2_json['state'] == 'inWar':
+            elif (ldcWar['clan']['tag'] == tag or ldcWar['opponent']['tag'] == tag) and ldcWar['state'] == 'inWar':
                 print('real id is: '+ war_tag_id)
-            return war_tag_id
+            
                         
 
 bot.start() 
