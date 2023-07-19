@@ -44,7 +44,7 @@ async def on_ready(): # quand le bod est pret
 @slash_command(name = 'recherchejoueur', description = "rechercher des joueur selon leurs stats") # on crée une commande et on initialiser sont nom et sa description 
 async def rechercheJoueur(ctx): # la fonction qui est rattacher a cette commande 
     components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='les joueurs ayant le plus de trophée', custom_id="trophy", ), Button(style=ButtonStyle.BLURPLE, label='les plus actifs dans les jeux de clans', custom_id="jdc"), Button(style=ButtonStyle.BLURPLE, label='les joueur dans un clan français ayant donné le plus de troupes', custom_id="don"))] #on crée la partie interactive du message 
-    await ctx.send('selectionner les statistiques que vous désirer' , components=components,) # on definis le contenue du message et on rattache la partie interactive du message 
+    await ctx.send('selectionner les statistiques que vous désirer' , components=components) # on definis le contenue du message et on rattache la partie interactive du message 
 
 
 ################################################
@@ -322,30 +322,41 @@ async def pa(ctx: SlashContext):
 ################################################
 
 
+# todo : faire plusieur embed(labo, info géneral, son clan)
+# todo : faire en sorte que l'on fasse uniquement 2 requete a l'api lorsqu'on effectue la commande 
+# todo : une fois que la commande a été effectuer on evoie l'embed info géneral avec trois boutons (info géneral, labo, son clan) 
+# todo : quand on appuis sur ses boutons on modifit le message initale par l'embed correspondant
+
+
 @slash_command(name = 'p', description = "afficher les stats d'un joueur")
 @slash_option(name = 'tag', description="tag du joueur", required=True, opt_type=OptionType.STRING )
 async def p(ctx : SlashContext, tag : str) :
-    try: 
-        player_id = tag[1:]
-        url = f"https://api.clashofclans.com/v1/players/%23{player_id}"
-        response = requests.get(url, headers=GDCBotheader)
-        user_json = response.json()  
-        user_json = json.dumps(user_json)
-        user_json = json.loads(user_json)      
+    try:    
+        tag = tag[1:]
+          #player_id = tag[1:]
+        #url = f"https://api.clashofclans.com/v1/players/%23{player_id}"
+        #response = requests.get(url, headers=GDCBotheader)
+        #user_json = response.json()  
+        #user_json = json.dumps(user_json)
+        #user_json = json.loads(user_json)
+
         
 
         # embed message
-        embed_profile = discord.Embed(title=user_json['name'], description="profil d'"+ user_json['name'], color=discord.Color.random())
+        embed_profile = discord.Embed(title="ahh", description="profil d'", color=discord.Color.random())
         embed_profile.add_field(name="Champ 1", value="Valeur 1", inline=False)
         embed_profile.add_field(name="Champ 2", value="Valeur 2", inline=False) 
         embeds = embed_profile.to_dict()
-        await ctx.send(embeds=embeds)
+        components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='les joueurs ayant le plus de trophée', custom_id="info_géneral", ))]
+        await ctx.send(embeds=embeds, components=components)
+
+        return tag
     except KeyError:
         await ctx.send("Erreur : tag du joueur invalide.")
     except Exception: # si il y a une erreur qui n'est pas mentionner plus haut 
         await ctx.send("Erreur : veuillez réessayer plus tard.")
 
-
+        #
 ################################################
 #
 #       if button click                                                                               
@@ -355,7 +366,8 @@ async def p(ctx : SlashContext, tag : str) :
 
 @listen()
 async def on_component(event: Component):
-    ctx = event.ctx    
+    ctx = event.ctx
+    print(ctx)
     if event.ctx.custom_id == 'trophy':
         embeds = []
         for i in range(25):
@@ -403,6 +415,8 @@ async def on_component(event: Component):
         paginator.show_select_menu = True
         
         await paginator.send(ctx)
+    elif event.ctx.custom_id == "info_géneral":
+        await event.ctx.message_id.edit(content="yes")
 
 
 ################################################
@@ -503,16 +517,12 @@ async def ldc(ctx : SlashContext, tag):
                 prepartionMessage = await channel.send(embed=preparationEmbed)
 
 
-                                
-
-
-
-            for a in range(int(ldcWar['teamSize']/5)):
-                clanValue=""
-                opponentValue =""
-                embeds = Embed(color=interactions.Color.from_rgb(255, 128, 0))
-                for i in range(5):
-                    i = i + a * 5
+            for a in range(int(ldcWar['teamSize']/5)): # on calcule le nombre d'embed nécessaire (on prend ici 5 joueur par embed)
+                clanValue="" # on initialise et reinitialise le message dans l'embed 
+                opponentValue ="" # on initialise et reinitialise le message dans l'embed
+                embeds = Embed(color=interactions.Color.from_rgb(255, 128, 0)) # on initialise et reinitialise l'embed avec la couleur orange 
+                for i in range(5): # pour 5 joueurs 
+                    i = i + a * 5 # petit calcule pour mettre les joueurs de 5 en 5 
                     try:
                         for z in range(len(opponentMemberInfo)):
                             if opponentMemberInfo[z]['tag'] == clanMemberInfo[i]['bestOpponentAttack']['attackerTag']:
@@ -564,11 +574,11 @@ async def ldc(ctx : SlashContext, tag):
                         except Exception:
                             clanValue = clanValue + f"**{i+1}. {clanMemberInfo[i]['name']} :crossed_swords:** n'a pas encore été attaqué \n\n"
                     try:
-                        for z in range(len(clanMemberInfo)):
-                            if clanMemberInfo[z]['tag'] == opponentMemberInfo[i]['bestOpponentAttack']['attackerTag']:
-                                opponentMemberInfodef = clanMemberInfo[z]['mapPosition']
-                                opponentMemberInfodefName = clanMemberInfo[z]['name']
+                        for z in range(len(clanMemberInfo)): # pour chaque joueur 
+                            if clanMemberInfo[z]['tag'] == opponentMemberInfo[i]['bestOpponentAttack']['attackerTag']: # si le tag du joueur adverse est le meme que le tag de l'attaquant 
+                                opponentMemberInfodefName = clanMemberInfo[z]['name'] # on recupere son psedo 
                                 break
+                        # les message pour un joueur qui a été attaqué et qui a attaqué
                         try : 
                             opponentValue = opponentValue + " **{}. {} {}** {} \n\n".format(
                                 i+1,
@@ -589,6 +599,7 @@ async def ldc(ctx : SlashContext, tag):
                                         )
                                     )
                                 )
+                        # les message pour un joueur qui a été attaqué et qui n'a pas attaqué 
                         except Exception: 
                             opponentValue = opponentValue + " **{}. {} :crossed_swords:** {} \n\n".format(
                                 i+1,
@@ -608,14 +619,14 @@ async def ldc(ctx : SlashContext, tag):
                                         )
                                     )
                                 )
-                    except Exception : 
-                        try:
+                    except Exception :  # si les joueurs n'on pas encore été attaqué
+                        try: # si les joueur n attaqué
                             opponentValue = opponentValue + f" **{i+1}. {opponentMemberInfo[i]['name']} {'' if len(opponentMemberInfo[i]['attacks']) == 1 else ':crossed_swords:'}** n'a pas encore été attaqué\n\n"
-                        except Exception:
+                        except Exception: # si les joueur n'ont pas attaqué
                             opponentValue = opponentValue + f" **{i+1}. {opponentMemberInfo[i]['name']} :crossed_swords:** n'a pas encore été attaqué\n\n"
-                embeds.add_field(name='votre clan' , value=clanValue , inline=True)
+                embeds.add_field(name='votre clan' , value=clanValue , inline=True) # on ajoute les données des joueur du clan dans l'embed (inline=True est utiliser pour que les messages soit sous forme de colones)
                 print(clanValue) 
-                embeds.add_field(name='le clan adverse', value=opponentValue, inline=True )
+                embeds.add_field(name='le clan adverse', value=opponentValue, inline=True )# on ajoute les données des joueur du clan adverse dans l'embed (inline=True est utiliser pour que les messages soit sous forme de colones)
                 print(opponentValue)
                 try : 
                     await messID[a].edit(content='',embed=embeds)
