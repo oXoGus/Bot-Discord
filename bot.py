@@ -14,7 +14,7 @@ from interactions import slash_command, SlashContext, Modal, ShortText, Paragrap
 import time
 import asyncio
 
-from config import TOKEN, GDCBotheader
+from config import TOKEN, GDCBotheader, laboHeader, clanHeader, infoGeneraleHeader
 
 # todo: faire while currentwar == inwar ... et pereil pour les autre status
 
@@ -30,6 +30,98 @@ bot = interactions.Client(token=TOKEN, intents=Intents.ALL) # crée le bot
 #       message when the bot is ready
 #
 ################################################
+
+betterTroops = {
+    "townHallLevel": [
+        { # 1
+            "Barbarian": 1,
+            "Archer": 1,
+            "géant": 1,
+        },
+        { # 2
+            "Barbarian": 1,
+            "Archer": 1,
+            "géant": 1,
+            "gobelin": 1,
+        },
+        { # 3
+            "Barbarian": 2,
+            "Archer": 2,
+            "géant": 1,
+            "gobelin": 2,
+        },
+        { # 4
+            "Barbarian": 2,
+            "Archer": 2,
+            "géant": 2,
+            "gobelin": 2,
+        },
+        {# 5
+            "Barbarian": 3,
+            "Archer": 3,
+            "géant": 2,
+            "gobelin": 3,
+        },
+        { # 6
+            "Barbarian": 3,
+            "Archer": 3,
+            "géant": 3,
+            "gobelin": 3,
+        },
+        { # 7
+            "Barbarian": 4,
+            "Archer": 4,
+            "géant": 4,
+            "gobelin": 4,
+        },
+        { # 8
+            "Barbarian": 5,
+            "Archer": 5,
+            "géant": 5,
+            "gobelin": 5,
+        },
+        { # 9
+            "Barbarian": 6,
+            "Archer": 6,
+            "géant": 6,
+            "gobelin": 6,
+        },
+        { # 10
+            "Barbarian": 7,
+            "Archer": 7,
+            "géant": 7,
+            "gobelin": 7,
+        },
+        { # 11
+            "Barbarian": 8,
+            "Archer": 8,
+            "géant": 8,
+            "gobelin": 7,
+        },
+        { # 12
+            "Barbarian": 9,
+            "Archer": 9,
+            "géant": 9,
+            "gobelin": 8,
+        },
+        { # 13
+            "Barbarian": 9,
+            "Archer": 9,
+            "géant": 10,
+        },
+        { # 14
+            "Barbarian": 10,
+            "Archer": 10,
+            "géant": 10,
+        },
+        { # 15
+            "Barbarian": 11,
+            "Archer": 11,
+            "géant": 11,
+        }
+    ]
+}
+
 
 @listen()
 async def on_ready(): # quand le bod est pret 
@@ -333,29 +425,56 @@ async def pa(ctx: SlashContext):
 async def p(ctx : SlashContext, tag : str) :
     try:    
         tag = tag[1:]
-          #player_id = tag[1:]
-        #url = f"https://api.clashofclans.com/v1/players/%23{player_id}"
-        #response = requests.get(url, headers=GDCBotheader)
-        #user_json = response.json()  
-        #user_json = json.dumps(user_json)
-        #user_json = json.loads(user_json)
-
-        
-
-        # embed message
-        embed_profile = discord.Embed(title="ahh", description="profil d'", color=discord.Color.random())
-        embed_profile.add_field(name="Champ 1", value="Valeur 1", inline=False)
-        embed_profile.add_field(name="Champ 2", value="Valeur 2", inline=False) 
+        url = f"https://api.clashofclans.com/v1/players/%23{tag}"
+        response = requests.get(url, headers=infoGeneraleHeader)
+        user_json = response.json()
+        user_json = json.dumps(user_json)
+        user = json.loads(user_json) 
+        embed_profile = discord.Embed(title="info génerale du joueur", description=f"**psedo et tag du joueur : {user['name']} {user['tag']} **", color=discord.Color.random(), colour=discord.Color.random())
+        embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+        embed_profile.add_field(name="nombre d'etoiles de guerre :", value=f"**{user['warStars']}**", inline=True)
+        embed_profile.add_field(name="nombre d'attaque gagnée cette saison :", value=f"**{user['attackWins']}**", inline=True)
+        embed_profile.add_field(name="nombre de défense gagnée cette saison :", value=f"**{user['defenseWins']}**", inline=True)
+        try:
+            embed_profile.add_field(name="rôle dans son clan :", value="**{}**".format("chef" if user['role'] =="leader" else("chef adjoint" if user['role'] == "coLeader" else ("ainé" if user['role'] == "admin" else "membre"))), inline=True)
+        except Exception:
+            embed_profile.add_field(name="rôle dans son clan :", value="n'est actuellement pas dans un clan")
+        embed_profile.add_field(name="préference de guerre :", value=f"{':white_check_mark:' if user['warPreference'] == 'in' else ':x:'}", inline=True)
+        embed_profile.add_field(name="nombre de troupe donnée cette saison :", value=f"{user['donations']}", inline=True)
+        embed_profile.add_field(name="nombre de troupe recu cette saison :", value=f"**{user['donationsReceived']}**", inline=True)      
+        embed_profile.add_field(name="contribution a la capitale de clan :", value=f"**{user['clanCapitalContributions']} points**", inline=True)  
+        embed_profile.add_field(name="niveau d'hotel de ville :", value=f"**{user['townHallLevel']}**", inline=True)
+        embed_profile.add_field(name="**{} :**".format("niveau de la giga tour de l'enfer" if user['townHallLevel'] == 13 or 14 or 15 else "niveau de la giga tesla"), value=f"**{user['townHallWeaponLevel']}**")
+        embed_profile.add_field(name="niveau du joueur :", value=f"**{user['expLevel']}**", inline=True) 
+        try:
+            embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}, {user['labels'][1]['name']}, {user['labels'][2]['name']}**", inline=True)
+        except Exception:
+            try:
+                embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}, {user['labels'][1]['name']}**", inline=True)
+            except Exception:
+                try:
+                    embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}**", inline=True)
+                except Exception:
+                    pass
+        try:
+            embed_profile.set_thumbnail(url=user['league']['iconUrls']['medium'])
+        except KeyError:
+            pass
+        embed_profile.set_footer(text=user['tag'])
         embeds = embed_profile.to_dict()
-        components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='les joueurs ayant le plus de trophée', custom_id="info_géneral", ))]
-        await ctx.send(embeds=embeds, components=components)
+        if user['clan'] == user['clan']:
+            components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=False), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=True), Button(style=ButtonStyle.BLURPLE, label='le clan du joueur', custom_id="info_clan", disabled=False))]
 
-        return tag
+        await ctx.send(embed=embeds, components=components, tag=user['tag'])
     except KeyError:
+        traceback.print_exc()
         await ctx.send("Erreur : tag du joueur invalide.")
     except Exception: # si il y a une erreur qui n'est pas mentionner plus haut 
         await ctx.send("Erreur : veuillez réessayer plus tard.")
+        traceback.print_exc()
 
+
+    
         #
 ################################################
 #
@@ -367,7 +486,7 @@ async def p(ctx : SlashContext, tag : str) :
 @listen()
 async def on_component(event: Component):
     ctx = event.ctx
-    print(ctx)
+    
     if event.ctx.custom_id == 'trophy':
         embeds = []
         for i in range(25):
@@ -416,9 +535,116 @@ async def on_component(event: Component):
         
         await paginator.send(ctx)
     elif event.ctx.custom_id == "info_géneral":
-        await event.ctx.message_id.edit(content="yes")
+        
+
+        embeds = ctx.message.embeds # on recupere la liste des embeds du message 
+        embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
+        description = embed.description # on extrait le contenue de la description de cet embed
+        tag = description.split()[7][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur 
+        print(tag)
+        
+        try:    
+            url = f"https://api.clashofclans.com/v1/players/%23{tag}"
+            response = requests.get(url, headers=infoGeneraleHeader)
+            user_json = response.json()
+            user_json = json.dumps(user_json)
+            user = json.loads(user_json) 
+            embed_profile = discord.Embed(title="info génerale du joueur", description=f"**psedo et tag du joueur : {user['name']} {user['tag']} **", color=discord.Color.random(), colour=discord.Color.random())
+            embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            embed_profile.add_field(name="nombre d'etoiles de guerre :", value=f"**{user['warStars']}**", inline=True)
+            embed_profile.add_field(name="nombre d'attaque gagnée cette saison :", value=f"**{user['attackWins']}**", inline=True)
+            embed_profile.add_field(name="nombre de défense gagnée cette saison :", value=f"**{user['defenseWins']}**", inline=True)
+            try:
+                embed_profile.add_field(name="rôle dans son clan :", value="**{}**".format("chef" if user['role'] =="leader" else("chef adjoint" if user['role'] == "coLeader" else ("ainé" if user['role'] == "admin" else "membre"))), inline=True)
+            except Exception:
+                embed_profile.add_field(name="rôle dans son clan :", value="n'est actuellement pas dans un clan")
+            embed_profile.add_field(name="préference de guerre :", value=f"{':white_check_mark:' if user['warPreference'] == 'in' else ':x:'}", inline=True)
+            embed_profile.add_field(name="nombre de troupe donnée cette saison :", value=f"{user['donations']}", inline=True)
+            embed_profile.add_field(name="nombre de troupe recu cette saison :", value=f"**{user['donationsReceived']}**", inline=True)      
+            embed_profile.add_field(name="contribution a la capitale de clan :", value=f"**{user['clanCapitalContributions']} points**", inline=True)  
+            embed_profile.add_field(name="niveau d'hotel de ville :", value=f"**{user['townHallLevel']}**", inline=True)
+            embed_profile.add_field(name="**{} :**".format("niveau de la giga tour de l'enfer" if user['townHallLevel'] == 13 or 14 or 15 else "niveau de la giga tesla"), value=f"**{user['townHallWeaponLevel']}**")
+            embed_profile.add_field(name="niveau du joueur :", value=f"**{user['expLevel']}**", inline=True) 
+            try:
+                embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}, {user['labels'][1]['name']}, {user['labels'][2]['name']}**", inline=True)
+            except Exception:
+                try:
+                    embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}, {user['labels'][1]['name']}**", inline=True)
+                except Exception:
+                    try:
+                        embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}**", inline=True)
+                    except Exception:
+                        pass
+            embed_profile.set_thumbnail(url=user['league']['iconUrls']['medium'])
+            embed_profile.set_footer(text=user['tag'])
+            embedInfoGenerale = embed_profile.to_dict()
+            try:
+                user['clan']
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=False), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=True), Button(style=ButtonStyle.BLURPLE, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+            except Exception :
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=False), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=True))]
+        except KeyError:
+            traceback.print_exc()
+            await ctx.send("Erreur : tag du joueur invalide.")
+        except Exception: # si il y a une erreur qui n'est pas mentionner plus haut 
+            await ctx.send("Erreur : veuillez réessayer plus tard.")
+            traceback.print_exc()
+        await ctx.edit_origin(embed=embedInfoGenerale, components=components)
 
 
+    elif event.ctx.custom_id == 'info_labo':
+
+        embeds = ctx.message.embeds # on recupere la liste des embeds du message 
+        embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
+        description = embed.description # on extrait le contenue de la description de cet embed
+        tag = description.split()[7][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur
+        print(tag)
+        try:    
+            url = f"https://api.clashofclans.com/v1/players/%23{tag}"
+            response = requests.get(url, headers=infoGeneraleHeader)
+            user_json = response.json()
+            user_json = json.dumps(user_json)
+            user = json.loads(user_json) 
+            embedLabo = discord.Embed(title="le labo et les heros du joueur", description=f"**psedo et tag du joueur : {user['name']} {user['tag']} **", color=discord.Color.random(), colour=discord.Color.random())
+            try:
+                embed_profile.add_field(name="Barbare :", value=f"**lvl {user['troops'][0]}**", inline=True)
+            except Exception:
+                pass
+            try:
+                embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            except Exception:
+                pass
+            try:
+                embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            except Exception:
+                pass
+            try:
+                embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            except Exception:
+                pass
+            try:
+                embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            except Exception:
+                pass
+            try:
+                embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            except Exception:
+                pass
+            try:
+                embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            except Exception:
+                pass
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        except Exception:
+            pass
 ################################################
 #
 #       ldc command                                                                              

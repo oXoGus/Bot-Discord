@@ -1,1 +1,16 @@
-TOKEN = "MTExODUzODE2NDI2OTc1MjMyMA.G9au5g.hReBnZrtyN09Cf0oam5cnzqdj4zhNf64TYa9f8"
+test ='inWar' 
+while test == 'inWar':
+    print(test)
+    test = 'preparation'
+
+while test == 'preparation':
+    print(test)
+    test = 'warEnded'
+
+while test == 'warEnded':
+    print(test)
+    test = 'inWar'
+
+
+global message 
+    
