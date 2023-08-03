@@ -1,18 +1,18 @@
 betterTroops = {
     "townHallLevel": [
         { # 1
-            "Barbarian": 1,
+            "Barbare": 1,
             "Archer": 1,
             "géant": 1,
         },
         { # 2
-            "Barbarian": 1,
+            "Barbare": 1,
             "Archer": 1,
             "géant": 1,
             "gobelin": 1,
         },
         { # 3
-            "Barbarian": 2,
+            "Barbare": 2,
             "Archer": 2,
             "géant": 1,
             "gobelin": 2,
@@ -20,7 +20,7 @@ betterTroops = {
             "sortDeFoudre": 2,
         },
         { # 4
-            "Barbarian": 2,
+            "Barbare": 2,
             "Archer": 2,
             "géant": 2,
             "gobelin": 2,
@@ -29,7 +29,7 @@ betterTroops = {
             "sortDeFoudre": 3,
         },
         {# 5
-            "Barbarian": 3,
+            "Barbare": 3,
             "Archer": 3,
             "géant": 2,
             "gobelin": 3,
@@ -39,7 +39,7 @@ betterTroops = {
             "sortDeFoudre":4,
         },
         { # 6
-            "Barbarian": 3,
+            "Barbare": 3,
             "Archer": 3,
             "géant": 3,
             "gobelin": 3,
@@ -52,7 +52,7 @@ betterTroops = {
             "sortDeRage": 3,
         },
         { # 7
-            "Barbarian": 4,
+            "Barbare": 4,
             "Archer": 4,
             "géant": 4,
             "gobelin": 4,
@@ -70,7 +70,7 @@ betterTroops = {
             "RoiDesBarbares": 5,
         },
         { # 8
-            "Barbarian": 5,
+            "Barbare": 5,
             "Archer": 5,
             "géant": 5,
             "gobelin": 5,
@@ -92,7 +92,7 @@ betterTroops = {
             "RoiDesBarbares": 10,
         },
         { # 9
-            "Barbarian": 6,
+            "Barbare": 6,
             "Archer": 6,
             "géant": 6,
             "gobelin": 6,
@@ -116,12 +116,12 @@ betterTroops = {
             "Valkyrie": 4,
             "golem": 4,
             "sorcière": 2,
-            "molosseDeLave": 2,
+            "molosse de lave": 2,
             "RoiDesBarbares": 30,
             "ReineDesArchères": 30,
         },
         { # 10
-            "Barbarian": 7,
+            "Barbare": 7,
             "Archer": 7,
             "géant": 7,
             "gobelin": 7,
@@ -149,13 +149,13 @@ betterTroops = {
             "Valkyrie": 5,
             "golem": 5,
             "sorcière": 3,
-            "molosseDeLave": 3,
+            "molosse de lave": 3,
             "bouliste": 2,
             "RoiDesBarbares": 40,
             "ReineDesArchères": 40,
         },
         { # 11
-            "Barbarian": 8,
+            "Barbare": 8,
             "Archer": 8,
             "géant": 8,
             "gobelin": 7,
@@ -185,15 +185,15 @@ betterTroops = {
             "Valkyrie": 6,
             "golem": 7,
             "sorcière": 4,
-            "molosseDeLave": 4,
+            "molosse de lave": 4,
             "bouliste": 3,
-            "golemDeGlace": 3,
+            "golem de glace": 3,
             "RoiDesBarbares": 50,
             "ReineDesArchères": 50,
             "warden": 20,
         },
         { # 12
-            "Barbarian": 9,
+            "Barbare": 9,
             "Archer": 9,
             "géant": 9,
             "gobelin": 8,
@@ -224,9 +224,9 @@ betterTroops = {
             "Valkyrie": 7,
             "golem": 9,
             "sorcière": 5,
-            "molosseDeLave": 5,
+            "molosse de lave": 5,
             "bouliste": 4,
-            "golemDeGlace": 5,
+            "golem de glace": 5,
             "chasseuse": 2,
             "Broyeur": 3,
             "dirigeable": 3,
@@ -237,7 +237,7 @@ betterTroops = {
             "warden": 40,
         },
         { # 13
-            "Barbarian": 9,
+            "Barbare": 9,
             "Archer": 9,
             "géant": 10,
             "gobelin": 8,
@@ -270,9 +270,9 @@ betterTroops = {
             "Valkyrie": 8,
             "golem": 10,
             "sorcière": 5,
-            "molosseDeLave": 6,
+            "molosse de lave": 6,
             "bouliste": 5,
-            "golemDeGlace": 5,
+            "golem de glace": 5,
             "chasseuse": 3,
             "apprentiGardien": 2,
             "Broyeur": 4,
@@ -287,7 +287,7 @@ betterTroops = {
             "championne": 25,
         },
         { # 14
-            "Barbarian": 10,
+            "Barbare": 10,
             "Archer": 10,
             "géant": 10,
             "gobelin": 8,
@@ -321,9 +321,9 @@ betterTroops = {
             "Valkyrie": 9,
             "golem": 11,
             "sorcière": 5,
-            "molosseDeLave": 6,
+            "molosse de lave": 6,
             "bouliste": 6,
-            "golemDeGlace": 6,
+            "golem de glace": 6,
             "chasseuse": 3,
             "apprentiGardien": 3,
             "Broyeur": 3,
@@ -338,7 +338,7 @@ betterTroops = {
             "championne": 30,
         },
         { # 15
-            "Barbarian": 11,
+            "Barbare": 11,
             "Archer": 11,
             "géant": 11,
             "gobelin": 9,
@@ -372,9 +372,9 @@ betterTroops = {
             "Valkyrie": 10,
             "golem": 12,
             "sorcière": 6,
-            "molosseDeLave": 6,
+            "molosse de lave": 6,
             "bouliste": 7,
-            "golemDeGlace": 7,
+            "golem de glace": 7,
             "chasseuse": 3,
             "apprentiGardien": 4,
             "Broyeur": 5,
@@ -393,7 +393,75 @@ betterTroops = {
 }
 betterTroops = betterTroops["townHallLevel"]
 
-trpRoseFR = ["Barbarian",
+
+hérosFR = [
+    "RoiDesBarbares",
+    "ReineDesArchères",
+    "warden",
+    "championne",
+]
+
+herosAPI = [
+    "Barbarian King",
+    "Archer Queen",
+    "Grand Warden",
+    "Royal Champion",
+]
+
+
+
+
+
+
+sortDataFR = [
+            "sortDeFoudre",
+            "sortDeGuérison",
+            "sortDeRage",
+            "sortDeSaut",
+            "sortDeGel",
+            "sortDeClonage",
+            "sortInvisibilité",
+            "sortDeRappel",
+            "sortDePoison",
+            "sortSismique",
+            "sortDePrécipitation",
+            "sortSquelettique",
+            "sortDeBat",
+]
+
+sortAPI = [
+            "Lightning Spell",
+            "Healing Spell",
+            "Rage Spell",
+            "Jump Spell",
+            "Freeze Spell",
+            "Clone Spell",
+            "Invisibility Spell",
+            "Recall Spell",
+            "Poison Spell",
+            "Earthquake Spell",
+            "Haste Spell",
+            "Skeleton Spell",
+            "Bat Spell",
+]
+
+emojiSortFR = {
+            "sortDeFoudre" : "<:zz:1136771570283597844>",
+            "sortDeGuérison" : "<:zz:1136771628894789743>",
+            "sortDeRage" : "<:zz:1136771676068126851>",
+            "sortDeSaut" : "<:zz:1136771730912858192>",
+            "sortDeGel" : "<:zz:1136771766195339357>", 
+            "sortDeClonage" : "<:zz:1136771800919982230>",
+            "sortInvisibilité" : "<:zz:1136771835128729640>",
+            "sortDeRappel" : "<:zz:1136771877642178581>",
+            "sortDePoison" : "<:zz:1136771908373844059>",
+            "sortSismique" : "<:zz:1136772015676739726>",
+            "sortDePrécipitation" : "<:zz:1136772051940671560>",
+            "sortSquelettique" : "<:zz:1136772101471223950>",
+            "sortDeBat" : "<:zz:1136772131036856501>",
+}
+
+trpRoseFR = ["Barbare",
             "Archer",
             "géant",
             "gobelin",
@@ -409,6 +477,43 @@ trpRoseFR = ["Barbarian",
             "yeti",
             "ChevaucheurDeDragon",
             "éléctro-titanide",]
+
+emojiTrpNoirFR = {
+            "gargouille" : "<:aa:1136659430088380476>",
+            "cochon" : "<:aa:1136659460182515803>",
+            "Valkyrie" : "<:aa:1136659504008798308>",
+            "golem" : "<:aa:1136659543267475556>",
+            "sorcière" : "<:aa:1136659571088293968>",
+            "molosse de lave" : "<:aa:1136659602247782480>",
+            "bouliste" : "<:aa:1136659627552018463>",
+            "golem de glace" : "<:aa:1136659664638058587>",
+            "chasseuse" : "<:aa:1136659720921415731>",
+            "apprentiGardien" : "<:aa:1136659754039656569>",
+            }
+
+trpNoirFR = ["gargouille",
+            "cochon",
+            "Valkyrie",
+            "golem",
+            "sorcière",
+            "molosse de lave",
+            "bouliste",
+            "golem de glace",
+            "chasseuse",
+            "apprentiGardien",
+            ]
+
+trpNoirAPI = ["Minion",
+            "Hog Rider",
+            "Valkyrie",
+            "Golem",
+            "Witch",
+            "Lava Hound",
+            "Bowler",
+            "Ice Golem",
+            "Headhunter",
+            "Apprentice Warden",
+            ]
 
 trpRoseAPI = ["Barbarian",
             "Archer",
@@ -426,3 +531,108 @@ trpRoseAPI = ["Barbarian",
             "Yeti",
             "Dragon Rider",
             "Electro Titan",]
+
+emojiTrpRoseFR = {
+                "Barbare" : "<:pp:1136642319781744672>",
+                "Archer" : "<:pp:1136642394461307020>",
+                "géant" : "<:pp:1136642453345148928>",
+                "gobelin" : "<:pp:1136642537650667550>",
+                "sapeur" : "<:pp:1136642600707829820>",
+                "ballon" : "<:pp:1136642645066784810>",
+                "sorcier" : "<:pp:1136642682299633794>",
+                "guérisseuse" : "<:pp:1136642719477940359>",
+                "dragon" : "<:pp:1136642753292423188>",
+                "P.E.K.K.A" : "<:JUSTPK:1136642844346560602>",
+                "Bébé dragon" : "<:pp:1136642970217627679>",
+                "mineur" : "<:pp:1136643057899548752>",
+                "E-drag" : "<:pp:1136643122865131620>",
+                "yeti" : "<:pp:1136643168260083793>",
+                "ChevaucheurDeDragon" : "<:pp:1136643214468730920>",
+                "éléctro-titanide" : "<:pp:1136643288716279878>",
+            }
+        
+
+laboPNG = [
+    "",
+    "",
+    "https://coc.guide/static/imgs/army/laboratory-1.png",
+    "https://coc.guide/static/imgs/army/laboratory-2.png",
+    "https://coc.guide/static/imgs/army/laboratory-3.png",
+    "https://coc.guide/static/imgs/army/laboratory-4.png",
+    "https://coc.guide/static/imgs/army/laboratory-5.png",
+    "https://coc.guide/static/imgs/army/laboratory-6.png",
+    "https://coc.guide/static/imgs/army/laboratory-7.png",
+    "https://coc.guide/static/imgs/army/laboratory-8.png",
+    "https://coc.guide/static/imgs/army/laboratory-9.png",
+    "https://coc.guide/static/imgs/army/laboratory-10.png",
+    "https://coc.guide/static/imgs/army/laboratory-11.png",
+    "https://coc.guide/static/imgs/army/laboratory-12.png",
+    "https://coc.guide/static/imgs/army/laboratory-13.png",
+
+]
+
+hdvPNG = [
+    {
+        "url": "https://coc.guide/static/imgs/other/town-hall-1.png",
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-2.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-3.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-4.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-5.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-6.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-7.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-8.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-9.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-10.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-11.png"
+    },
+    {
+        "url" : "https://coc.guide/static/imgs/other/town-hall-12.png"
+    },
+    {
+        "th" : [
+            "https://coc.guide/static/imgs/other/town-hall-13-1.png",
+            "https://coc.guide/static/imgs/other/town-hall-13-2.png",
+            "https://coc.guide/static/imgs/other/town-hall-13-3.png",
+            "https://coc.guide/static/imgs/other/town-hall-13-4.png",
+            "https://coc.guide/static/imgs/other/town-hall-13-5.png",
+        ],
+    },
+    {
+        "th" : [
+            "https://coc.guide/static/imgs/other/town-hall-14-1.png",
+            "https://coc.guide/static/imgs/other/town-hall-14-2.png",
+            "https://coc.guide/static/imgs/other/town-hall-14-3.png",
+            "https://coc.guide/static/imgs/other/town-hall-14-4.png",
+            "https://coc.guide/static/imgs/other/town-hall-14-5.png",
+        ],
+    },
+    {
+        "th" : [
+            "https://coc.guide/static/imgs/other/town-hall-15-1.png",
+            "https://coc.guide/static/imgs/other/town-hall-15-2.png",
+            "https://coc.guide/static/imgs/other/town-hall-15-3.png",
+            "https://coc.guide/static/imgs/other/town-hall-15-4.png",
+            "https://coc.guide/static/imgs/other/town-hall-15-5.png",
+        ],
+    },
+]

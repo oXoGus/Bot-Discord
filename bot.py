@@ -4,7 +4,7 @@ import discord
 import interactions
 import requests
 from discord.ext import commands
-from interactions import (Button, ButtonStyle, OptionType, SlashContext, ActionRow, StringSelectMenu, Embed, Intents, listen, slash_command, slash_option)
+from interactions import (Button, ButtonStyle, OptionType, SlashContext, ActionRow, StringSelectMenu, CustomEmoji, Embed, PartialEmoji,Intents, listen, slash_command, slash_option)
 from interactions.api.events import Component
 from interactions.ext.paginators import Paginator
 from datetime import datetime, timezone
@@ -16,7 +16,7 @@ import asyncio
 import math
 
 from config import TOKEN, GDCBotheader, laboHeader, clanHeader, infoGeneraleHeader
-from trpData import betterTroops, trpRoseFR, trpRoseAPI
+from trpData import betterTroops, trpRoseFR, trpRoseAPI, emojiTrpRoseFR, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG
 
 # todo: faire while currentwar == inwar ... et pereil pour les autre status
 
@@ -25,6 +25,7 @@ cursor = conn.cursor() # creation d'une variable pour interagire avec la base de
 
 
 bot = interactions.Client(token=TOKEN, intents=Intents.ALL) # crée le bot
+
 
 
 ################################################
@@ -301,11 +302,14 @@ async def gdc(ctx : SlashContext, id):
 @slash_command(name = 'pa', description = "afficher les stats d'un joueur")
 async def pa(ctx: SlashContext):
     channel = ctx.channel
+    for emoji in await ctx.guild.fetch_all_custom_emojis():
+        print(f"<:{emoji.name}:{emoji.id}>")
+        await ctx.send(f"<:{emoji.name}:{emoji.id}>")
     embed = Embed(title="stats du joueur", color=interactions.Color.from_rgb(255, 128, 0))
     try:
         messID=[]
         for jsp in range(4):
-            warMessage = await channel.send(content='yo !')
+            warMessage = await channel.send(content=f"<:p_:1136624579314450523>")
             messID.append(warMessage)
         print(messID)
         for i in range(4):
@@ -370,9 +374,13 @@ async def p(ctx : SlashContext, tag : str) :
                 except Exception:
                     pass
         try:
-            embed_profile.set_thumbnail(url=user['league']['iconUrls']['medium'])
+            embed_profile.set_thumbnail(url=hdvPNG[user['townHallLevel']-1]['th'][user['townHallWeaponLevel']-1])
         except KeyError:
-            pass
+            try: 
+                embed_profile.set_thumbnail(url=hdvPNG[user['townHallLevel']-1]['url'])
+            except Exception:
+                print("y'a un blem avec les image frérot")
+                traceback.print_exc()
         embed_profile.set_footer(text=user['tag'])
         embeds = embed_profile.to_dict()
         if user['clan'] == user['clan']:
@@ -518,18 +526,24 @@ async def on_component(event: Component):
             user_json = json.dumps(user_json)
             user = json.loads(user_json) 
             troops = user['troops']
+            sort = user['spells']
+            héros = user['heroes']
             embedLabo = discord.Embed(title=f"le labo et les heros du joueur {user['tag']}", description=f"**psedo du joueur : {user['name']}  **", color=discord.Color.random(), colour=discord.Color.random()) # on recée l'embed de base
-
-            for i in range(len(trpRoseFR), 2): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
+            try:
+                embedLabo.set_thumbnail(url=laboPNG[user['townHallLevel']-1])
+            except Exception:
+                traceback.print_exc()
+            embedLabo.add_field(name="Les troupes d'élexire", value=" ", inline=False)
+            for i in range(math.ceil(len(trpRoseFR)/2)): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
                 trp = [] # on reinisialise les data des trp
-                
-                for e in range(2):
+                i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
+                for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
                     i = i + e
-                    trpTest = sorted(troops, key= lambda x : x['name'] != trpRoseAPI[i])[0]
-                    print(trpRoseAPI[i])
-                    if trpTest['name'] == trpRoseAPI[i]:
-                        trpTest['name'] = trpRoseFR[i]
-                        trp.append(trpTest)
+                    trpTest = sorted(troops, key= lambda x : x['name'] != trpRoseAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                    print(trpRoseAPI[i]) # debug
+                    if trpTest['name'] == trpRoseAPI[i]: # on verifie que ce sont les bonnes troupes
+                        trpTest['name'] = trpRoseFR[i] # on traduit le nom des trp en fr
+                        trp.append(trpTest) # et on ajoute la troupes a la liste
                      
                     
                     
@@ -537,17 +551,93 @@ async def on_component(event: Component):
                 try:
                     print(trp[0])
                     print(trp[1]) 
-                    embedLabo.add_field(name=f"{trp[0]['name']} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{trp[1]['name']} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
+                    embedLabo.add_field(name=f"{emojiTrpRoseFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiTrpRoseFR[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
                 except Exception:
                     try:
-                        embedLabo.add_field(name=f"{trp[0]['name']} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
+                        embedLabo.add_field(name=f"{emojiTrpRoseFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
                     except Exception:
+                        traceback.print_exc()
+
+
+            embedLabo.add_field(name="Les sort", value=" ", inline=False)
+            for i in range(math.ceil(len(sortDataFR)/2)): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
+                trp = [] # on reinisialise les data des trp
+                i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
+                for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
+                    i = i + e
+                    try: 
+                        trpTest = sorted(sort, key= lambda x : x['name'] != sortAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                        print(sortDataFR[i], trpTest) # debug
+                        if trpTest['name'] == sortAPI[i]: # on verifie que ce sont les bonnes troupes
+                            trpTest['name'] = sortDataFR[i] # on traduit le nom des trp en fr
+                            print(trpTest)
+                            trp.append(trpTest) # et on ajoute la troupes a la liste
+                    except Exception :
                         pass
+                    
+                try: 
+                    embedLabo.add_field(name=f"{emojiSortFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiSortFR[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
+                except Exception:
+                    try:
+                        traceback.print_exc()
+                        embedLabo.add_field(name=f"{emojiSortFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
+                    except Exception:
+                        traceback.print_exc()
+
+
+            embedLabo.add_field(name="Les troupes d'élexire noir", value=" ", inline=False)
+            for i in range(math.ceil(len(trpNoirFR)/2)): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
+                trp = [] # on reinisialise les data des trp
+                i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
+                for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
+                    i = i + e
+                    trpTest = sorted(troops, key= lambda x : x['name'] != trpNoirAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                    print(trpNoirAPI[i]) # debug
+                    if trpTest['name'] == trpNoirAPI[i]: # on verifie que ce sont les bonnes troupes
+                        trpTest['name'] = trpNoirFR[i] # on traduit le nom des trp en fr
+                        print(trpTest)
+                        trp.append(trpTest) # et on ajoute la troupes a la liste
+                     
+                    
+                try: 
+                    embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiTrpNoirFR[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
+                except Exception:
+                    try:
+                        traceback.print_exc()
+                        embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
+                    except Exception:
+                        traceback.print_exc()
+
+
+            embedLabo.add_field(name="Les héros", value=" ", inline=False)
+            for i in range(math.ceil(len(trpNoirFR)/2)): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
+                trp = [] # on reinisialise les data des trp
+                i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
+                for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
+                    i = i + e
+                    trpTest = sorted(héros, key= lambda x : x['name'] != trpNoirAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                    print(trpNoirAPI[i]) # debug
+                    if trpTest['name'] == trpNoirAPI[i]: # on verifie que ce sont les bonnes troupes
+                        trpTest['name'] = trpNoirFR[i] # on traduit le nom des trp en fr
+                        print(trpTest)
+                        trp.append(trpTest) # et on ajoute la troupes a la liste
+                     
+                    
+                try: 
+                    embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiTrpNoirFR[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
+                except Exception:
+                    try:
+                        traceback.print_exc()
+                        embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
+                    except Exception:
+                        traceback.print_exc()
+
 
             try:
                 user['clan']
                 components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.BLURPLE, label='le clan du joueur', custom_id="info_clan", disabled=False))]
             except Exception :
+                
                 components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=False))]
             embedLabo = embedLabo.to_dict()
             await ctx.edit_origin(embed=embedLabo, components=components)
