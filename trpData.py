@@ -336,6 +336,10 @@ betterTroops = {
             "ReineDesArchères": 80,
             "warden": 55,
             "championne": 30,
+            "L.A.S.S.I" : 10,
+            "Mighty Yak" : 10,
+            "Electro Owl" : 10,
+            "Unicorn" : 10,
         },
         { # 15
             "Barbare": 11,
@@ -388,11 +392,59 @@ betterTroops = {
             "ReineDesArchères": 90,
             "warden": 65,
             "championne": 40,
+            "L.A.S.S.I" : 15,
+            "Mighty Yak" : 15,
+            "Electro Owl" : 10,
+            "Unicorn" : 10,
+            "Frosty" : 10,
+            "Diggy" : 10,
+            "Poison Lizard" : 10,
+            "Phoenix" : 10,
         }
     ]
 }
 betterTroops = betterTroops["townHallLevel"]
 
+emojiLabo = [
+    "<:ll:1137490435422572595>",
+    "<:ll:1137490435422572595>",
+    "<:ll:1137490435422572595>",
+    "<:ll:1137490477269123172>",
+    "<:ll:1137490536421412864>",
+    "<:ll:1137490587277332582>",
+    "<:ll:1137490624434667540>",
+    "<:ll:1137490655246037073>",
+    "<:ll:1137490686237737111>",
+    "<:ll:1137490711932063795>",
+    "<:ll:1137490736292573195>",
+    "<:ll:1137490765824671875>",
+    "<:ll:1137490792844382268>",
+    "<:ll:1137490825425723413>",
+    "<:ll:1137490848691535973>",
+]
+
+famillierAPI = [
+            "L.A.S.S.I",
+            "Mighty Yak",
+            "Electro Owl",
+            "Unicorn",
+            "Frosty",
+            "Diggy",
+            "Poison Lizard",
+            "Phoenix",
+            
+]
+
+emojiFamillier = {
+            "L.A.S.S.I" : "<:ff:1137469727069962480>",
+            "Mighty Yak" : "<:ff:1137469836268675122>",
+            "Electro Owl" : "<:ff:1137470678866591905>",
+            "Unicorn" : "<:ff:1137470800174260315>",
+            "Frosty" : "<:ff:1137470869657112637>",
+            "Diggy" : "<:ff:1137470916046110720>",
+            "Poison Lizard" : "<:ff:1137470993951109262>",
+            "Phoenix" : "<:ff:1137471024884097094>",
+}
 
 hérosFR = [
     "RoiDesBarbares",
@@ -408,10 +460,48 @@ herosAPI = [
     "Royal Champion",
 ]
 
+emojiHero = {
+    "RoiDesBarbares" : "<:ee:1136954729931481148>",
+    "ReineDesArchères" : "<:ee:1136954748164128839>",
+    "warden" : "<:ee:1136954785799618590>",
+    "championne" : "<:ee:1136954828828967006>",
+}
 
+herosthumbnail = [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "https://coc.guide/static/imgs/hero/barbarian-king.png",
+    "https://coc.guide/static/imgs/hero/barbarian-king.png",
+    "https://coc.guide/static/imgs/hero/archer-queen.png",
+    "https://coc.guide/static/imgs/hero/archer-queen.png",
+    "https://coc.guide/static/imgs/hero/grand-warden.png",
+    "https://coc.guide/static/imgs/hero/grand-warden.png",
+    "https://coc.guide/static/imgs/hero/royal-champion.png",
+    "https://coc.guide/static/imgs/hero/royal-champion.png",
+    "https://coc.guide/static/imgs/hero/royal-champion.png",
+]
 
-
-
+herostemoji = [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "<:ee:1136954729931481148>",
+    "<:ee:1136954729931481148>",
+    "<:ee:1136954748164128839>",
+    "<:ee:1136954748164128839>",
+    "<:ee:1136954785799618590>",
+    "<:ee:1136954785799618590>",
+    "<:ee:1136954828828967006>",
+    "<:ee:1136954828828967006>",
+    "<:ee:1136954828828967006>",
+]
 
 sortDataFR = [
             "sortDeFoudre",
@@ -636,3 +726,30 @@ hdvPNG = [
         ],
     },
 ]
+
+ligueAPI = {
+      "Unranked" : "<:unr:1137426541568069713>",
+      "Bronze League III": "<:b3:1137426022074167296>",
+      "Bronze League II": "<:b2:1137426045105078333>",
+      "Bronze League I": "<:b1:1137426062586953789>",
+      "Silver League III": "<:a3:1137426078730834034>",
+      "Silver League II": "<:a2:1137426092165169192>",
+      "Silver League I": "<:a1:1137426106895568936>",
+      "Gold League III": "<:o3:1137426144895959181>",
+      "Gold League II": "<:o2:1137426177611538685>",
+      "Gold League I": "<:o1:1137426199929430127>",
+      "Crystal League III": "<:cr3:1137426226680696953>",
+      "Crystal League II": "<:cr2:1137426250353352820>",
+      "Crystal League I": "<:cr1:1137426273837264906>",
+      "Master League III": "<:m3:1137426326102491146>",
+      "Master League II": "<:m2:1137426348646875198>",
+      "Master League I": "<:m1:1137426365793189968>",
+      "Champion League III": "<:c3:1137426389239332904>",
+      "Champion League II": "<:c2:1137426410840019004>",
+      "Champion League I": "<:c1:1137426428707733674>",
+      "Titan League III": "<:t3:1137426451348598814>",
+      "Titan League II": "<:t2:1137426474224320635>",
+      "Titan League I": "<:t1:1137426495237795981>",
+      "Legend League": "<:leg:1137426518579089508>",
+    }
+

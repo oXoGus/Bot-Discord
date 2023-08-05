@@ -14,9 +14,9 @@ from interactions import slash_command, SlashContext, Modal, ShortText, Paragrap
 import time
 import asyncio
 import math
-
+import timestamp
 from config import TOKEN, GDCBotheader, laboHeader, clanHeader, infoGeneraleHeader
-from trpData import betterTroops, trpRoseFR, trpRoseAPI, emojiTrpRoseFR, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG
+from trpData import betterTroops, trpRoseFR, trpRoseAPI, emojiTrpRoseFR, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji
 
 # todo: faire while currentwar == inwar ... et pereil pour les autre status
 
@@ -304,7 +304,6 @@ async def pa(ctx: SlashContext):
     channel = ctx.channel
     for emoji in await ctx.guild.fetch_all_custom_emojis():
         print(f"<:{emoji.name}:{emoji.id}>")
-        await ctx.send(f"<:{emoji.name}:{emoji.id}>")
     embed = Embed(title="stats du joueur", color=interactions.Color.from_rgb(255, 128, 0))
     try:
         messID=[]
@@ -340,59 +339,66 @@ async def pa(ctx: SlashContext):
 @slash_command(name = 'p', description = "afficher les stats d'un joueur")
 @slash_option(name = 'tag', description="tag du joueur", required=True, opt_type=OptionType.STRING )
 async def p(ctx : SlashContext, tag : str) :
-    try:    
         tag = tag[1:]
-        url = f"https://api.clashofclans.com/v1/players/%23{tag}"
-        response = requests.get(url, headers=infoGeneraleHeader)
-        user_json = response.json()
-        user_json = json.dumps(user_json)
-        user = json.loads(user_json) 
-        embed_profile = discord.Embed(title=f"info génerale du joueur {user['tag']}", description=f"**psedo du joueur : {user['name']}**", color=discord.Color.random(), colour=discord.Color.random())
-        embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
-        embed_profile.add_field(name="nombre d'etoiles de guerre :", value=f"**{user['warStars']}**", inline=True)
-        embed_profile.add_field(name="nombre d'attaque gagnée cette saison :", value=f"**{user['attackWins']}**", inline=True)
-        embed_profile.add_field(name="nombre de défense gagnée cette saison :", value=f"**{user['defenseWins']}**", inline=True)
-        try:
-            embed_profile.add_field(name="rôle dans son clan :", value="**{}**".format("chef" if user['role'] =="leader" else("chef adjoint" if user['role'] == "coLeader" else ("ainé" if user['role'] == "admin" else "membre"))), inline=True)
-        except Exception:
-            embed_profile.add_field(name="rôle dans son clan :", value="n'est actuellement pas dans un clan")
-        embed_profile.add_field(name="préference de guerre :", value=f"{':white_check_mark:' if user['warPreference'] == 'in' else ':x:'}", inline=True)
-        embed_profile.add_field(name="nombre de troupe donnée cette saison :", value=f"{user['donations']}", inline=True)
-        embed_profile.add_field(name="nombre de troupe recu cette saison :", value=f"**{user['donationsReceived']}**", inline=True)      
-        embed_profile.add_field(name="contribution a la capitale de clan :", value=f"**{user['clanCapitalContributions']} points**", inline=True)  
-        embed_profile.add_field(name="niveau d'hotel de ville :", value=f"**{user['townHallLevel']}**", inline=True)
-        embed_profile.add_field(name="**{} :**".format("niveau de la giga tour de l'enfer" if user['townHallLevel'] == 13 or 14 or 15 else "niveau de la giga tesla"), value=f"**{user['townHallWeaponLevel']}**")
-        embed_profile.add_field(name="niveau du joueur :", value=f"**{user['expLevel']}**", inline=True) 
-        try:
-            embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}, {user['labels'][1]['name']}, {user['labels'][2]['name']}**", inline=True)
-        except Exception:
+        try:    
+            url = f"https://api.clashofclans.com/v1/players/%23{tag}"
+            response = requests.get(url, headers=infoGeneraleHeader)
+            user_json = response.json()
+            user_json = json.dumps(user_json)
+            user = json.loads(user_json) 
+            embed_profile = Embed(title=f"info génerale du joueur {user['tag']}", description=f"**psedo du joueur : {user['name']}**", color=interactions.Color.random(),url=user['league']['iconUrls']['small'], timestamp=datetime.now())
+            embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']} {ligueAPI[user['league']['name']]}**", inline=True)
+            embed_profile.add_field(name="nombre d'etoiles de guerre :", value=f"**{user['warStars']}**", inline=True)
+            embed_profile.add_field(name=f"nombre d'attaque gagnée cette saison : {user['attackWins']}", value=f" ", inline=True)
+            embed_profile.add_field(name="nombre de défense gagnée cette saison :", value=f"**{user['defenseWins']}**", inline=True)
             try:
-                embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}, {user['labels'][1]['name']}**", inline=True)
+                embed_profile.add_field(name="rôle dans son clan :", value="**{}**".format("chef" if user['role'] =="leader" else("chef adjoint" if user['role'] == "coLeader" else ("ainé" if user['role'] == "admin" else "membre"))), inline=True)
             except Exception:
-                try:
-                    embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}**", inline=True)
-                except Exception:
-                    pass
-        try:
-            embed_profile.set_thumbnail(url=hdvPNG[user['townHallLevel']-1]['th'][user['townHallWeaponLevel']-1])
-        except KeyError:
-            try: 
-                embed_profile.set_thumbnail(url=hdvPNG[user['townHallLevel']-1]['url'])
+                embed_profile.add_field(name="rôle dans son clan :", value="n'est actuellement pas dans un clan")
+            embed_profile.add_field(name="préference de guerre :", value=f"{'<:yy:1137489567973388348>' if user['warPreference'] == 'in' else '<:nn:1137489472989188276>'}", inline=True)
+            embed_profile.add_field(name=f"nombre de troupe donnée cette saison : {user['donations']}", value=f" ", inline=True)
+            embed_profile.add_field(name="nombre de troupe recu cette saison :", value=f"**{user['donationsReceived']}**", inline=True)      
+            embed_profile.add_field(name="contribution a la capitale de clan :", value=f"**{user['clanCapitalContributions']} <:jj:1137489208232124476>**", inline=True)  
+            embed_profile.add_field(name="niveau d'hotel de ville :", value=f"**{user['townHallLevel']}**", inline=True)
+            embed_profile.add_field(name="**{} :**".format("niveau de la giga tour de l'enfer" if user['townHallLevel'] == 13 or 14 or 15 else "niveau de la giga tesla"), value=f"**{user['townHallWeaponLevel']}**")
+            embed_profile.add_field(name="niveau du joueur :", value=f"**{user['expLevel']} <:exp:1137420369259675669>**", inline=True) 
+            try:
+                embed_profile.add_field(name="les labels du joueur :", value=f" ", inline=False)
+                for label in user['labels']:
+                    embed_profile.add_image(image=label['iconUrls']['small'])
+                
             except Exception:
-                print("y'a un blem avec les image frérot")
                 traceback.print_exc()
-        embed_profile.set_footer(text=user['tag'])
-        embeds = embed_profile.to_dict()
-        if user['clan'] == user['clan']:
-            components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=False), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=True), Button(style=ButtonStyle.BLURPLE, label='le clan du joueur', custom_id="info_clan", disabled=False))]
 
-        await ctx.send(embed=embeds, components=components, tag=user['tag'])
-    except KeyError:
-        traceback.print_exc()
-        await ctx.send("Erreur : tag du joueur invalide.")
-    except Exception: # si il y a une erreur qui n'est pas mentionner plus haut 
-        await ctx.send("Erreur : veuillez réessayer plus tard.")
-        traceback.print_exc()
+            embed_profile.set_thumbnail(url=hdvPNG[user['townHallLevel']-1]['th'][user['townHallWeaponLevel']-1])
+            embed_profile.set_footer(text=user['tag'])
+            embedInfoGenerale = embed_profile.to_dict()
+            try:
+                user['clan']
+                try:
+                    user['heroes']
+                    try:
+                        components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False, emoji=herostemoji[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=True, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+                    except Exception :
+                        components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=True, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+                except Exception:
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=True), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=True, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+            except Exception :
+                try :
+                    user['heroes']
+                    try :
+                        components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False, emoji=herostemoji[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=True, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True))]
+                    except Exception:
+                        components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=True, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True))]
+                except Exception:
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=True), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=True, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True))]
+            await ctx.send(embed=embedInfoGenerale, components=components)
+        except KeyError:
+            traceback.print_exc()
+            await ctx.send("Erreur : tag du joueur invalide.")
+        except Exception: # si il y a une erreur qui n'est pas mentionner plus haut 
+            await ctx.send("Erreur : veuillez réessayer plus tard.")
+            traceback.print_exc()
 
 
     
@@ -459,8 +465,8 @@ async def on_component(event: Component):
 
         embeds = ctx.message.embeds # on recupere la liste des embeds du message 
         embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
-        description = embed.description # on extrait le contenue de la description de cet embed
-        tag = description.split()[7][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur 
+        title = embed.title # on extrait le contenue de la description de cet embed
+        tag = title.split()[-1][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur 
         print(tag)
         
         try:    
@@ -470,16 +476,16 @@ async def on_component(event: Component):
             user_json = json.dumps(user_json)
             user = json.loads(user_json) 
             embed_profile = discord.Embed(title=f"info génerale du joueur {user['tag']}", description=f"**psedo du joueur : {user['name']}**", color=discord.Color.random(), colour=discord.Color.random())
-            embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']}**", inline=True)
+            embed_profile.add_field(name="nombre de trophées du joueur :", value=f"**{user['trophies']} <:tr:1137414233693376632>**", inline=True)
             embed_profile.add_field(name="nombre d'etoiles de guerre :", value=f"**{user['warStars']}**", inline=True)
-            embed_profile.add_field(name="nombre d'attaque gagnée cette saison :", value=f"**{user['attackWins']}**", inline=True)
+            embed_profile.add_field(name=f"nombre d'attaque gagnée cette saison : {user['attackWins']}", value=f"", inline=True)
             embed_profile.add_field(name="nombre de défense gagnée cette saison :", value=f"**{user['defenseWins']}**", inline=True)
             try:
                 embed_profile.add_field(name="rôle dans son clan :", value="**{}**".format("chef" if user['role'] =="leader" else("chef adjoint" if user['role'] == "coLeader" else ("ainé" if user['role'] == "admin" else "membre"))), inline=True)
             except Exception:
                 embed_profile.add_field(name="rôle dans son clan :", value="n'est actuellement pas dans un clan")
             embed_profile.add_field(name="préference de guerre :", value=f"{':white_check_mark:' if user['warPreference'] == 'in' else ':x:'}", inline=True)
-            embed_profile.add_field(name="nombre de troupe donnée cette saison :", value=f"{user['donations']}", inline=True)
+            embed_profile.add_field(name=f"nombre de troupe donnée cette saison : {user['donations']}", value=f"", inline=True)
             embed_profile.add_field(name="nombre de troupe recu cette saison :", value=f"**{user['donationsReceived']}**", inline=True)      
             embed_profile.add_field(name="contribution a la capitale de clan :", value=f"**{user['clanCapitalContributions']} points**", inline=True)  
             embed_profile.add_field(name="niveau d'hotel de ville :", value=f"**{user['townHallLevel']}**", inline=True)
@@ -495,14 +501,22 @@ async def on_component(event: Component):
                         embed_profile.add_field(name="les labels du joueur", value=f"**{user['labels'][0]['name']}**", inline=True)
                     except Exception:
                         pass
-            embed_profile.set_thumbnail(url=user['league']['iconUrls']['medium'])
+            embed_profile.set_thumbnail(url=hdvPNG[user['townHallLevel']-1]['th'][user['townHallWeaponLevel']-1])
             embed_profile.set_footer(text=user['tag'])
             embedInfoGenerale = embed_profile.to_dict()
             try:
                 user['clan']
-                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=False), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=True), Button(style=ButtonStyle.BLURPLE, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+                try:
+                    user['heroes']
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+                except Exception:
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=True), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False))]
             except Exception :
-                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=False), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=True))]
+                try :
+                    user['heroes']
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True))]
+                except Exception:
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=True), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True))]
         except KeyError:
             traceback.print_exc()
             await ctx.send("Erreur : tag du joueur invalide.")
@@ -517,7 +531,7 @@ async def on_component(event: Component):
         embeds = ctx.message.embeds # on recupere la liste des embeds du message 
         embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
         title = embed.title # on extrait le contenue de la description de cet embed
-        tag = title.split()[4][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur
+        tag = title.split()[-1][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur
         print(tag) # débug
         try:    
             url = f"https://api.clashofclans.com/v1/players/%23{tag}"
@@ -527,7 +541,7 @@ async def on_component(event: Component):
             user = json.loads(user_json) 
             troops = user['troops']
             sort = user['spells']
-            héros = user['heroes']
+            
             embedLabo = discord.Embed(title=f"le labo et les heros du joueur {user['tag']}", description=f"**psedo du joueur : {user['name']}  **", color=discord.Color.random(), colour=discord.Color.random()) # on recée l'embed de base
             try:
                 embedLabo.set_thumbnail(url=laboPNG[user['townHallLevel']-1])
@@ -539,12 +553,14 @@ async def on_component(event: Component):
                 i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
                 for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
                     i = i + e
-                    trpTest = sorted(troops, key= lambda x : x['name'] != trpRoseAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
-                    print(trpRoseAPI[i]) # debug
-                    if trpTest['name'] == trpRoseAPI[i]: # on verifie que ce sont les bonnes troupes
-                        trpTest['name'] = trpRoseFR[i] # on traduit le nom des trp en fr
-                        trp.append(trpTest) # et on ajoute la troupes a la liste
-                     
+                    try:
+                        trpTest = sorted(troops, key= lambda x : x['name'] != trpRoseAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                        print(trpRoseAPI[i]) # debug
+                        if trpTest['name'] == trpRoseAPI[i]: # on verifie que ce sont les bonnes troupes
+                            trpTest['name'] = trpRoseFR[i] # on traduit le nom des trp en fr
+                            trp.append(trpTest) # et on ajoute la troupes a la liste
+                    except Exception:
+                        pass
                     
                     
                 
@@ -591,13 +607,15 @@ async def on_component(event: Component):
                 i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
                 for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
                     i = i + e
-                    trpTest = sorted(troops, key= lambda x : x['name'] != trpNoirAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
-                    print(trpNoirAPI[i]) # debug
-                    if trpTest['name'] == trpNoirAPI[i]: # on verifie que ce sont les bonnes troupes
-                        trpTest['name'] = trpNoirFR[i] # on traduit le nom des trp en fr
-                        print(trpTest)
-                        trp.append(trpTest) # et on ajoute la troupes a la liste
-                     
+                    try:
+                        trpTest = sorted(troops, key= lambda x : x['name'] != trpNoirAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                        print(trpNoirAPI[i]) # debug
+                        if trpTest['name'] == trpNoirAPI[i]: # on verifie que ce sont les bonnes troupes
+                            trpTest['name'] = trpNoirFR[i] # on traduit le nom des trp en fr
+                            print(trpTest)
+                            trp.append(trpTest) # et on ajoute la troupes a la liste
+                    except Exception:
+                        pass 
                     
                 try: 
                     embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiTrpNoirFR[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
@@ -607,72 +625,125 @@ async def on_component(event: Component):
                         embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
                     except Exception:
                         traceback.print_exc()
-
-
-            embedLabo.add_field(name="Les héros", value=" ", inline=False)
-            for i in range(math.ceil(len(trpNoirFR)/2)): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
-                trp = [] # on reinisialise les data des trp
-                i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
-                for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
-                    i = i + e
-                    trpTest = sorted(héros, key= lambda x : x['name'] != trpNoirAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
-                    print(trpNoirAPI[i]) # debug
-                    if trpTest['name'] == trpNoirAPI[i]: # on verifie que ce sont les bonnes troupes
-                        trpTest['name'] = trpNoirFR[i] # on traduit le nom des trp en fr
-                        print(trpTest)
-                        trp.append(trpTest) # et on ajoute la troupes a la liste
-                     
-                    
-                try: 
-                    embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiTrpNoirFR[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
-                except Exception:
-                    try:
-                        traceback.print_exc()
-                        embedLabo.add_field(name=f"{emojiTrpNoirFR[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
-                    except Exception:
-                        traceback.print_exc()
-
-
+            
             try:
                 user['clan']
-                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.BLURPLE, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False))]
             except Exception :
                 
-                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='le labo et les heros du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.BLURPLE, label='les infos générales du joueur', custom_id="info_géneral", disabled=False))]
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False))]
+            try : 
+                héros = user['heroes']
+                components.insert(0, Button(style=ButtonStyle.BLURPLE, label='les héros du joueur', custom_id="info_hero", disabled=False))
+            except Exception :
+                pass
+            
             embedLabo = embedLabo.to_dict()
             await ctx.edit_origin(embed=embedLabo, components=components)
 
 
         except Exception:
             traceback.print_exc()
+
+
+    elif event.ctx.custom_id == "info_hero":
+        embeds = ctx.message.embeds # on recupere la liste des embeds du message 
+        embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
+        title = embed.title # on extrait le contenue de la description de cet embed
+        tag = title.split()[-1][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur
+        print(tag) # débug
+        try:    
+            url = f"https://api.clashofclans.com/v1/players/%23{tag}"
+            response = requests.get(url, headers=laboHeader)
+            user_json = response.json()
+            user_json = json.dumps(user_json)
+            user = json.loads(user_json) 
+            héros = user['heroes']
+            famillier = user['troops']
+            embedHeros = Embed(title=f"les heros du joueur {user['tag']}", description=f"**psedo du joueur : {user['name']}  **", color=interactions.Color.random(), timestamp=datetime.now()) # on recée l'embed de base
+            embedHeros.add_field(name="Les héros", value=" ", inline=False)
+            for i in range(math.ceil(len(hérosFR)/2)): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
+                trp = [] # on reinisialise les data des trp
+                i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
+                for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
+                    i = i + e
+                    try:
+                        trpTest = sorted(héros, key= lambda x : x['name'] != herosAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                        print(herosAPI[i]) # debug
+                        if trpTest['name'] == herosAPI[i]: # on verifie que ce sont les bonnes troupes
+                            trpTest['name'] = hérosFR[i] # on traduit le nom des trp en fr
+                            print(trpTest)
+                            trp.append(trpTest) # et on ajoute la troupes a la liste
+                    except Exception:
+                        pass
+                    
+                try: 
+                    embedHeros.add_field(name=f"{emojiHero[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiHero[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
+                except Exception:
+                    try:
+                        traceback.print_exc()
+                        embedHeros.add_field(name=f"{emojiHero[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
+                    except Exception:
+                        traceback.print_exc()
+        
+
+            embedHeros.add_field(name="Les famillier", value=" ", inline=False)
+            for i in range(math.ceil(len(famillierAPI)/2)): # on divise le nb de trp par 2 et on arrondit a l'entier superieur avec math.ceil()
+                trp = [] # on reinisialise les data des trp
+                i = i*2 # on multiplie i pas 2 pour avoir un pas de 2 
+                for e in range(2): #on crée une boucle pour recuperer les data 2 par 2 
+                    i = i + e
+                    try:
+                        trpTest = sorted(famillier, key= lambda x : x['name'] != famillierAPI[i])[0] # on trie la liste pour que le premier index corespond a ce qu'on cherche
+                        print(famillier[i]) # debug
+                        if trpTest['name'] == famillierAPI[i]: # on verifie que ce sont les bonnes troupes
+                            print(trpTest)
+                            trp.append(trpTest) # et on ajoute la troupes a la liste
+                    except Exception:
+                        pass
+                    
+                try: 
+                    embedHeros.add_field(name=f"{emojiFamillier[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f"\n**{emojiFamillier[trp[1]['name']]} : lvl {trp[1]['level']} {'MAX !' if trp[1]['level'] == trp[1]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[1]['name']] == trp[1]['level'] else '')}**", inline=True)
+                except Exception:
+                    try:
+                        traceback.print_exc()
+                        embedHeros.add_field(name=f"{emojiFamillier[trp[0]['name']]} : lvl {trp[0]['level']} {'MAX !' if trp[0]['level'] == trp[0]['maxLevel'] else ('max pour son hdv !' if betterTroops[user['townHallLevel']-1][trp[0]['name']] == trp[0]['level'] else '')}", value=f" ", inline=True)
+                    except Exception:
+                        traceback.print_exc()
+            try:
+                user['clan']
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False))]
+            except Exception :
+                
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False))]
+            try : 
+                héros = user['heroes']
+                components.insert(0, Button(style=ButtonStyle.BLURPLE, label='les héros du joueur', custom_id="info_hero", disabled=False))
+            except Exception :
+                pass
+            embedHeros = embedHeros.to_dict()
+            await ctx.edit_origin(embed=embedHeros, components=components)
+
+
+        except Exception:
+            traceback.print_exc()
+
+
+
+
+
+
+
+
+
+
+
 ################################################
 #
 #       ldc command
 #
 ################################################
    
-"""
-def ldc_udate_data(war_tag_id):
-    requests_cache.install_cache('api_cache')
-    url = "https://api.clashofclans.com/v1/clanwarleagues/wars/%23" + war_tag_id
-    response = requests.get(url, headers=GDCBotheader)
-    if not response.from_cache:
-        requests_cache.cache_response(response)
-    previous_response = requests_cache.get_cache().get(url)
-    if previous_response is not None and previous_response.content != response.content:
-        ldc_info = requests.get(url, headers=GDCBotheader)
-        ldc_info = response.json()
-        ldc_info = json.dumps(ldc_info)
-        ldc_info = json.loads(ldc_info)
-        if float(ldc_info['clan']['destructionPercentage']) < float(ldc_info['opponent']['destructionPercentage']):
-            title = ldc_info['clan']['name'] + '  ' +ldc_info['clan']['stars'] + '   vs   ' + '**' + ldc_info['opponent']['stars'] + '**' + '   **' + ldc_info['opponent']['name'] + '**'
-        else: 
-            title = '**' +ldc_info['clan']['name'] + '**' + '  ' +'**' +ldc_info['clan']['stars']+ '**' + '   vs   ' +  ldc_info['opponent']['stars']  +'  '+  ldc_info['opponent']['name'] 
-        embed_profile = discord.Embed(title=title, description=None, color=discord.Color.random())
-        embed_profile.add_field(name="Champ 1", value="Valeur 1", inline=True)
-        embed_profile.add_field(name="Champ 2", value="Valeur 2", inline=True) 
-        return embed_profile"""
-    
 
 # ldc preview in one select channel update if sth is new
 @slash_command(name = 'ldc', description = "afficher les guerre dans ce channel")
