@@ -503,6 +503,85 @@ herostemoji = [
     "<:ee:1136954828828967006>",
 ]
 
+labelsEmoji = {
+    "Clan Wars": {
+        "emoji" : "<:ClanWarLeague:1138561885785030807>",
+        "Fr" : "Guerres de clans",
+    },
+    "Clan War League" : {
+        "emoji" : "<:ClanWarLeague:1138561885785030807>",
+        "Fr" : "Ligue de guerres de clans",
+    },
+    "Trophy Pushing" : {
+        "emoji" : "<:TrophyPushing:1138562087426215988>",
+        "Fr" : "Collecte de trophées",
+    },
+    "Friendly Wars": {
+        "emoji" : "<:FriendlyWars:1138562417807347792>",
+        "Fr" : "Guerres amicales",
+    },
+    "Talkative": {
+        "emoji" : "<:Talkative:1138563238783623241>",
+        "Fr" : "Communicatif",
+    },
+    "Amateur Attacker": {
+        "emoji" : "<:AmateurAttacker:1138563240968847510>",
+        "Fr" : "Attaquant amateur",
+    },
+    "Newbie": {
+        "emoji" : "<:Newbie:1138563242122289264>",
+        "Fr" : "Débutant",
+    },
+    "Veteran": {
+        "emoji" : "<:Veteran:1138563243879694426>",
+        "Fr" : "Vétéran",
+    },
+    "Competitive": {
+        "emoji" : "<:Competitive:1138563245817479208>",
+        "Fr" : "Compétitif",
+    },
+    "Teacher": {
+        "emoji" : "<:Teacher:1138563247151267959>",
+        "Fr" : "Professeur",
+    },
+    "Clan Games": {
+        "emoji" : "<:ClanGames:1138563248359211139>",
+        "Fr" : "Jeux de clan",
+    },
+    "Builder Base": {
+        "emoji" : "<:BuilderBase:1138563250112450600>",
+        "Fr" : "Base des ouvriers",
+    },
+    "Base Designing": {
+        "emoji" : "<:BaseDesigning:1138563251119075329>",
+        "Fr" : "Création de plans",
+    },
+    "Active Donator": {
+        "emoji" : "<:ActiveDonator:1138563253404958800>",
+        "Fr" : "donneur généreux",
+    },
+    "Hungry Learner": {
+        "emoji" : "<:HungryLearner:1138563256810741770>",
+        "Fr" : "Apprenant avide",
+    },
+    "Friendly": {
+        "emoji" : "<:Friendly:1138563411286962338>",
+        "Fr" : "Amical",
+    },
+    "Active Daily": {
+        "emoji" : "<:ActiveDaily:1138563455146791003>",
+        "Fr" : "Joueur quotidien",
+    },
+    "Clan Capital": {
+        "emoji" : "<:ClanCapital:1138563479305977936>",
+        "Fr" : "Capitale",
+    },
+    "Farming": {
+        "emoji" : "<:Farming:1138563542375747634>",
+        "Fr" : "Farming",
+    },    
+}
+
 sortDataFR = [
             "sortDeFoudre",
             "sortDeGuérison",
