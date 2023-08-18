@@ -503,6 +503,12 @@ herostemoji = [
     "<:ee:1136954828828967006>",
 ]
 
+clanType = {
+    "open" : "ouvert",
+    "closed" : "fermé",
+    "inviteOnly" : "sur invitation",
+}
+
 labelsEmoji = {
     "Clan Wars": {
         "emoji" : "<:ClanWarLeague:1138561885785030807>",
@@ -830,5 +836,27 @@ ligueAPI = {
       "Titan League II": "<:t2:1137426474224320635>",
       "Titan League I": "<:t1:1137426495237795981>",
       "Legend League": "<:leg:1137426518579089508>",
+    }
+
+ligueLDC = {
+      "Unranked" : "<:unr:1137426541568069713>",
+      "Bronze League III": "<:WarBronzeIII:1142195019101524059>",
+      "Bronze League II": "<:WarBronzeII:1142195053645799626>",
+      "Bronze League I": "<:WarBronzeI:1142195271703466114>",
+      "Silver League III": "<:WarSilverIII:1142195299415244840>",
+      "Silver League II": "<:WarSilverII:1142195307296329768>",
+      "Silver League I": "<:WarSilverI:1142195314414059553>",
+      "Gold League III": "<:WarGoldIII:1142195328964120695>",
+      "Gold League II": "<:WarGoldII:1142195335691763803>",
+      "Gold League I": "<:WarGoldI:1142195342427836426>",
+      "Crystal League III": "<:WarCrystalIII:1142195349272928437>",
+      "Crystal League II": "<:WarCrystalII:1142195355379830796>",
+      "Crystal League I": "<:WarCrystalI:1142195362422067372>",
+      "Master League III": "<:WarMasterIII:1142195369665626273>",
+      "Master League II": "<:WarMasterII:1142195402221822023>",
+      "Master League I": "<:WarMasterI:1142195409092092004>",
+      "Champion League III": "<:WarChampionIII:1142195420819378316>",
+      "Champion League II": "<:WarMasterII:1142195402221822023>",
+      "Champion League I": "<:WarMasterI:1142195409092092004>",
     }
 

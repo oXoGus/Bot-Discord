@@ -16,7 +16,7 @@ import asyncio
 import math
 import timestamp
 from config import TOKEN, GDCBotheader, laboHeader, clanHeader, infoGeneraleHeader
-from trpData import betterTroops, trpRoseFR, trpRoseAPI, emojiTrpRoseFR, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji, labelsEmoji
+from trpData import betterTroops, trpRoseFR, trpRoseAPI, emojiTrpRoseFR, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji, labelsEmoji, clanType, ligueLDC
 
 # todo: faire while currentwar == inwar ... et pereil pour les autre status
 
@@ -746,6 +746,42 @@ async def on_component(event: Component):
 
         except Exception:
             traceback.print_exc()
+    
+    elif event.ctx.custom_id == "info_clan" :
+        try:
+            embeds = ctx.message.embeds # on recupere la liste des embeds du message 
+            embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
+            title = embed.title # on extrait le contenue de la description de cet embed
+            tag = title.split()[-1][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur
+            print(tag) # débug 
+            url = f"https://api.clashofclans.com/v1/players/%23{tag}"
+            response = requests.get(url, headers=laboHeader)
+            user_json = response.json()
+            user_json = json.dumps(user_json)
+            user = json.loads(user_json)
+            clanTag = user['clan']['tag'][1:]
+            clanUrl = f"https://api.clashofclans.com/v1/clans/%{clanTag}"
+            response = requests.get(clanUrl, headers=laboHeader)
+            userClan = response.json()
+            userClan = json.dumps(userClan)
+            userClan = json.loads(userClan)
+            
+            clanEmbed = Embed(title=f"clan de {user['name']} {user['tag']}", description=f"**{userClan['name']}**\n{userClan['description']}", color=interactions.Color.random(), timestamp=datetime.now())
+            clanEmbed.add_field(name=f"tag du clan :", description=f"{userClan['tag']}", inline=True)
+            clanEmbed.add_field(name=f"statut du clan :", description=f"{clanType[userClan['type']]}", inline=True)
+            clanEmbed.add_field(name=f"location du clan :", description=f"{userClan['location']['name']}", inline=True)
+            clanEmbed.set_thumbnail(url=userClan['badgeUrls']['large'])
+            clanEmbed.add_field(name=f"niveau du clan :", description=f"{userClan['clanLevel']}", inline=True)
+            clanEmbed.add_field(name=f"points du clan :" , description=f"{userClan['clanPoints']}", inline=True)
+            clanEmbed.add_field(name=f"points dela base des ouvrier :", description=f"{userClan['clanBuilderBasePoints']}", inline=True)
+            clanEmbed.add_field(name=f"trophée de la capitale de clan :", description=f"{userClan['clanCapitalPoints']} {ligueAPI[userClan['capitalLeague']['name']]}", inline=True)
+            clanEmbed.add_field(name=f"trophée requis :", description=f"{userClan['requiredTrophies']}", inline=True)
+            clanEmbed.add_field(name=f"victoire en guerre :", description=f"{userClan['warWin']}", inline=True)
+            clanEmbed.add_field(name=f"victoire concecutive en guerre :", description=f"{userClan['warWinStreak']}", inline=True)
+            clanEmbed.add_field(name=f"ligue de clan :", description=f"{ligueLDC[userClan['warLeague']['name']]}", inline=True)
+        except Exception : 
+            traceback.print_exc()
+
 
 
 
@@ -769,7 +805,9 @@ async def on_component(event: Component):
 @slash_option(name = 'tag', description="tag du clan", required=True, opt_type=OptionType.STRING )
 async def ldc(ctx : SlashContext, tag):
     channel = ctx.channel    
+    message = await channel.send(content="veuiller patienter")
     warTagId = await ldc_find_war_tag_id(tag)
+    await message.delete(0)
     while warTagId is not None:
         url = f"https://api.clashofclans.com/v1/clanwarleagues/wars/%23{warTagId}"
         response = requests.get(url, headers=GDCBotheader)
