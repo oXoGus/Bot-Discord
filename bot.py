@@ -760,34 +760,114 @@ async def on_component(event: Component):
             user_json = json.dumps(user_json)
             user = json.loads(user_json)
             clanTag = user['clan']['tag'][1:]
-            clanUrl = f"https://api.clashofclans.com/v1/clans/%{clanTag}"
+            clanUrl = f"https://api.clashofclans.com/v1/clans/%23{clanTag}"
             response = requests.get(clanUrl, headers=laboHeader)
             userClan = response.json()
             userClan = json.dumps(userClan)
             userClan = json.loads(userClan)
-            
-            clanEmbed = Embed(title=f"clan de {user['name']} {user['tag']}", description=f"**{userClan['name']}**\n{userClan['description']}", color=interactions.Color.random(), timestamp=datetime.now())
-            clanEmbed.add_field(name=f"tag du clan :", description=f"{userClan['tag']}", inline=True)
-            clanEmbed.add_field(name=f"statut du clan :", description=f"{clanType[userClan['type']]}", inline=True)
-            clanEmbed.add_field(name=f"location du clan :", description=f"{userClan['location']['name']}", inline=True)
+            print(userClan)
+            clanEmbed = Embed(title=f"clan de {user['name']} {user['tag']}", description=f"**{userClan['name']}** {userClan['tag']}", color=interactions.Color.random(), timestamp=datetime.now())
+            clanEmbed.add_field(name=f"description :", value=f"{userClan['description']}", inline=False)
+            clanEmbed.add_field(name=f"statut du clan :", value=f"{userClan['requiredTrophies']} <:tr:1137414233693376632>", inline=True)
+            clanEmbed.add_field(name=f"trophées requis :", value=f"{clanType[userClan['type']]}", inline=True)
+            try:
+                clanEmbed.add_field(name=f"location du clan :", value=f"{userClan['location']['name']}", inline=True)
+            except Exception: 
+                clanEmbed.add_field(name=f"location du clan :", value=f"location indéterminer", inline=True)
             clanEmbed.set_thumbnail(url=userClan['badgeUrls']['large'])
-            clanEmbed.add_field(name=f"niveau du clan :", description=f"{userClan['clanLevel']}", inline=True)
-            clanEmbed.add_field(name=f"points du clan :" , description=f"{userClan['clanPoints']}", inline=True)
-            clanEmbed.add_field(name=f"points dela base des ouvrier :", description=f"{userClan['clanBuilderBasePoints']}", inline=True)
-            clanEmbed.add_field(name=f"trophée de la capitale de clan :", description=f"{userClan['clanCapitalPoints']} {ligueAPI[userClan['capitalLeague']['name']]}", inline=True)
-            clanEmbed.add_field(name=f"trophée requis :", description=f"{userClan['requiredTrophies']}", inline=True)
-            clanEmbed.add_field(name=f"victoire en guerre :", description=f"{userClan['warWin']}", inline=True)
-            clanEmbed.add_field(name=f"victoire concecutive en guerre :", description=f"{userClan['warWinStreak']}", inline=True)
-            clanEmbed.add_field(name=f"ligue de clan :", description=f"{ligueLDC[userClan['warLeague']['name']]}", inline=True)
+            clanEmbed.add_field(name=f"niveau du clan :", value=f"{userClan['clanLevel']}", inline=True)
+            clanEmbed.add_field(name=f"trophées du clan :" , value=f"{userClan['clanPoints']} <:tr:1137414233693376632>       {userClan['clanBuilderBasePoints']} <:Icon_Versus_Trophy:1146190738695143534>", inline=True)
+            clanEmbed.add_field(name=f"trophée de la capitale de clan :", value=f"{userClan['clanCapitalPoints']} {ligueAPI[userClan['capitalLeague']['name']]}", inline=True)
+            clanEmbed.add_field(name=f"trophée requis :", value=f"{userClan['requiredTrophies']}", inline=True)
+            clanEmbed.add_field(name=f"victoire en guerre :", value=f"{userClan['warWins']}", inline=True)
+            clanEmbed.add_field(name=f"victoire concecutive en guerre :", value=f"{userClan['warWinStreak']}", inline=True)
+            clanEmbed.add_field(name=f"ligue de clan :", value=f"{ligueLDC[userClan['warLeague']['name']]}", inline=True)
+
+            
+            try:
+                user['heroes']
+                try:
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False, emoji=herostemoji[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les membre du clan', custom_id="info_clan_membre", disabled=False))]
+                except Exception :
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les membre du clan', custom_id="info_clan_membre", disabled=False))]
+            except Exception:
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=True), Button(style=ButtonStyle.PRIMARY, label='les membre du clan', custom_id="info_clan_membre", disabled=False))]
+            clanEmbed = clanEmbed.to_dict()
+            await ctx.edit_origin(embed=clanEmbed, components=components)
         except Exception : 
             traceback.print_exc()
 
 
+    elif event.ctx.custom_id == "info_clan_membre" :
+        try :
+            embeds = ctx.message.embeds # on recupere la liste des embeds du message 
+            embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
+            title = embed.title # on extrait le contenue de la description de cet embed
+            tag = title.split()[-1][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur
+            embeds = ctx.message.embeds # on recupere la liste des embeds du message 
+            embed = embeds[0] # on prend que le premier embed(il y en a qu'un mais obligé)
+            descption = embed.description # on extrait le contenue de la description de cet embed
+            clanTag = descption.split()[-1][1:] # on transforme cette description en une liste, on a donc tout les mots sans les espaces et on trouve le bon index ou se trouve le tag du joueur
+            print(clanTag) 
+            try:
+                userUrl = f"https://api.clashofclans.com/v1/players/%23{tag}"
+                response = requests.get(userUrl, headers=laboHeader)
+                user = response.json()
+                user = json.dumps(user)
+                user = json.loads(user)
+                
+            except Exception:
+                traceback.print_exc()
+            try:
+                clanUrl = f"https://api.clashofclans.com/v1/clans/%23{clanTag}"
+                response = requests.get(clanUrl, headers=laboHeader)
+                userClan = response.json()
+                userClan = json.dumps(userClan)
+                userClan = json.loads(userClan)
+            except Exception:
+                traceback.print_exc()
+            memberEmbed = Embed(title=f"membre du clan de {user['name']} {user['tag']}", description=f"**{userClan['name']} {userClan['tag']}**", color=interactions.Color.random(), timestamp=datetime.now())
+            coleaders = []
+            admins = []
+            members = []
+            for member in userClan['memberList']:
+                if member['role'] == "leader":
+                    chef = member
+                elif member['role'] == "coLeader":
+                    coleaders.append(member)
+                elif member['role'] == "admin":
+                    admins.append(member)
+                elif member['role'] == "member":
+                    members.append(member)
 
-
-
-
-
+            memberEmbed.add_field(name=f"membre : {userClan['members']}/50", value=" ")
+            memberEmbed.add_field(name=f"Chef", value=f"{chef['name']} {chef['tag']} {chef['expLevel']} <:exp:1137420369259675669> {chef['trophies']} {ligueAPI[chef['league']['name']]} <:dd:1138557463851962509> {chef['donations']} <:dd:1138557463851962509> {chef['donationsReceived']}")
+            coleaderValue = ""
+            for coleader in coleaders:
+                coleaderValue = coleaderValue + f"{coleader['name']} {coleader['tag']} {coleader['expLevel']} <:exp:1137420369259675669> {coleader['trophies']} {ligueAPI[coleader['league']['name']]}  <:dd:1138557463851962509> {coleader['donations']} <:dd:1138557463851962509> {coleader['donationsReceived']} \n"
+            memberEmbed.add_field(name=f"Chef adjoint", value=coleaderValue)
+            
+            adminValue = ""
+            for admin in admins:
+                adminValue = adminValue + f"{admin['name']} {admin['tag']} {admin['expLevel']} <:exp:1137420369259675669> {admin['trophies']} {ligueAPI[admin['league']['name']]}  <:dd:1138557463851962509> {admin['donations']} <:dd:1138557463851962509> {admin['donationsReceived']} \n"
+            memberEmbed.add_field(name=f"ainé", value=adminValue)
+            
+            memberValue =""
+            for member in members:
+                memberValue = memberValue + f"{member['name']} {member['tag']} {member['expLevel']} <:exp:1137420369259675669> {member['trophies']} {ligueAPI[member['league']['name']]} {member['builderBaseTrophies']} <:Icon_Versus_Trophy:1146190738695143534> <:dd:1138557463851962509> {member['donations']} <:dd:1138557463851962509> {member['donationsReceived']} \n"
+            memberEmbed.add_field(name=f"membre", value=memberValue)
+            try:
+                user['heroes']
+                try:
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False, emoji=herostemoji[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False), Button(style=ButtonStyle.PRIMARY, label='les membre du clan', custom_id="info_clan_membre", disabled=True))]
+                except Exception :
+                    components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False), Button(style=ButtonStyle.PRIMARY, label='les membre du clan', custom_id="info_clan_membre", disabled=True))]
+            except Exception:
+                components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.PRIMARY, label='les héros du joueur', custom_id="info_hero", disabled=False), Button(style=ButtonStyle.PRIMARY, label='le labo du joueur', custom_id="info_labo", disabled=False, emoji=emojiLabo[user['townHallLevel']-1]), Button(style=ButtonStyle.PRIMARY, label='les infos générales du joueur', custom_id="info_géneral", disabled=False, emoji="<:ii:1137487775671787620>"), Button(style=ButtonStyle.PRIMARY, label='le clan du joueur', custom_id="info_clan", disabled=False), Button(style=ButtonStyle.PRIMARY, label='les membre du clan', custom_id="info_clan_membre", disabled=True))]
+            memberEmbed = memberEmbed.to_dict()
+            await ctx.edit_origin(embed=memberEmbed, components=components)
+        except Exception:
+            traceback.print_exc()
 
 
 
