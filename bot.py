@@ -15,7 +15,7 @@ import time
 import asyncio
 import math
 from config import TOKEN, GDCBotheader, laboHeader, clanHeader, infoGeneraleHeader
-from trpData import betterTroops, trpRoseFR, trpRoseAPI, emojiTrpRoseFR, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji, labelsEmoji, clanType, ligueLDC
+from trpData import betterTroops, trpRoseFR, trpRoseAPI, clanMembersDB, emojiTrpRoseFR, superToopsAPI, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji, labelsEmoji, clanType, ligueLDC
 
 # todo: faire while currentwar == inwar ... et pereil pour les autre status
 
@@ -409,7 +409,68 @@ async def p(ctx : SlashContext, tag : str) :
             traceback.print_exc()
 
 
+def fillclanMembersDB(clanJSON):
+    member = clanJSON['memberList'] # on recupere la liste des membre
+    for stat in member: # pour chaque membre
+        try:
+            playerTag = stat['tag'] # on recupere le tag des membre
+            playerID = playerTag[1:] # on retire le hastag
+            responsePlayer = requests.get(url=f'https://api.clashofclans.com/v1/players/%23{playerID}', headers=clanHeader) #on recupere les info des joueurs
+            time.sleep(1)
+            # on recupere les donnée pour la database
+            player_json = responsePlayer.json()
+            player_json = json.dumps(player_json)
+            playerData= json.loads(player_json)
+            playerName = playerData['name']
+            playerRole = stat['role']
+            playerExp = playerData['expLevel']
+            trophiesLeagueID = playerData['league']['id']
+            etoilesDeGuerre = playerData['warStars']
+            preferenceDeGuerre = playerData['warPreference']
+            troops = playerData['troops']
+            spells = playerData['spells']
+            heroes = playerData['heroes']
+            trpRose = []
+            for i in range(len(trpRoseAPI)):
+                if sorted(troops, key= lambda x : x['name'] != trpRoseAPI[i])[0] == trpRoseAPI[i]:
+                    trpRose.append(sorted(troops, key= lambda x : x['name'] != trpRoseAPI[i])[0]['level'])
+                else:
+                    pass
+            trpNoir = []
+            for i in range(len(trpNoirAPI)):
+                if sorted(troops, key= lambda x : x['name'] != trpNoirAPI[i])[0] == trpNoirAPI[i]:
+                    trpNoir.append(sorted(troops, key= lambda x : x['name'] != trpNoirAPI[i])[0]['level'])
+                else:
+                    trpNoir.append(None)
+            sort = []
+            for i in range(len(sortAPI)):
+                if sorted(spells, key= lambda x : x['name'] != sortAPI[i])[0] == sortAPI[i]:
+                    sort.append(sorted(spells, key= lambda x : x['name'] != sortAPI[i])[0]['level'])
+                else:
+                    sort.append(None)
+            hero = []
+            for i in range(len(herosAPI)):
+                if sorted(heroes, key= lambda x : x['name'] != herosAPI[i])[0] == herosAPI[i]:
+                    hero.append(sorted(heroes, key= lambda x : x['name'] != herosAPI[i])[0]['level'])
+                else:
+                    hero.append(None)
+            superTroops = []
+            for i in range(len(superToopsAPI)):
+                if sorted(troops, key= lambda x : x['name'] != superToopsAPI[i])[0] == superToopsAPI[i]:
+                    try :
+                        superTroops.append(sorted(troops, key= lambda x : x['name'] != superToopsAPI[i])[0]['superTroopIsActive'])
+                    except Exception :
+                        superTroops.append("false")
+                else:
+                    superTroops.append(None)
+            cursor.execute(f"INSERT INTO clanMembers{clanJSON['tag']} ({clanMembersDB[0]}, {clanMembersDB[1]}, {clanMembersDB[2]}, {clanMembersDB[3]}, {clanMembersDB[4]}, {clanMembersDB[5]}, {clanMembersDB[6]}, {clanMembersDB[7]}, {clanMembersDB[8]}, {clanMembersDB[9]}, {clanMembersDB[10]}, {clanMembersDB[11]}, {clanMembersDB[12]}, {clanMembersDB[13]}, {clanMembersDB[14]}, {clanMembersDB[15]}, {clanMembersDB[16]}, {clanMembersDB[17]}, {clanMembersDB[18]}, {clanMembersDB[19]}, {clanMembersDB[20]}, {clanMembersDB[21]}, {clanMembersDB[22]}, {clanMembersDB[23]}, {clanMembersDB[24]}, {clanMembersDB[25]}, {clanMembersDB[26]}, {clanMembersDB[27]}, {clanMembersDB[28]}, {clanMembersDB[29]}, {clanMembersDB[30]}, {clanMembersDB[31]}, {clanMembersDB[32]}, {clanMembersDB[33]}, {clanMembersDB[34]}, {clanMembersDB[35]}, {clanMembersDB[36]}, {clanMembersDB[37]}, {clanMembersDB[38]}, {clanMembersDB[39]}, {clanMembersDB[40]}, {clanMembersDB[41]}, {clanMembersDB[42]}, {clanMembersDB[43]}, {clanMembersDB[44]}, {clanMembersDB[45]}, {clanMembersDB[46]}, {clanMembersDB[47]}, {clanMembersDB[48]}, {clanMembersDB[49]}, {clanMembersDB[50]}, {clanMembersDB[51]}, {clanMembersDB[52]}, {clanMembersDB[53]}, {clanMembersDB[54]}, {clanMembersDB[55]}, {clanMembersDB[56]}, {clanMembersDB[57]}, {clanMembersDB[58]}, {clanMembersDB[59]}, {clanMembersDB[60]}, {clanMembersDB[61]}, {clanMembersDB[62]}, {clanMembersDB[63]}, {clanMembersDB[64]}, {clanMembersDB[65]}, {clanMembersDB[66]}, {clanMembersDB[67]}, {clanMembersDB[68]}, {clanMembersDB[69]}, {clanMembersDB[70]}, {clanMembersDB[71]}, {clanMembersDB[72]}, {clanMembersDB[73]}, {clanMembersDB[74]}, {clanMembersDB[75]}, {clanMembersDB[76]}, {clanMembersDB[77]}, {clanMembersDB[78]}, {clanMembersDB[79]}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (playerTag, playerName, playerRole, trophiesLeagueID, etoilesDeGuerre,superToopsAPI[0], superToopsAPI[1], superToopsAPI[2], superToopsAPI[3], superToopsAPI[4], superToopsAPI[5], superToopsAPI[6], superToopsAPI[7], superToopsAPI[8], superToopsAPI[9], superToopsAPI[10], superToopsAPI[11], superToopsAPI[12], superToopsAPI[13], superToopsAPI[14], trpRoseAPI[0],  trpRoseAPI[1], trpRoseAPI[2], trpRoseAPI[3], trpRoseAPI[4], trpRoseAPI[5], trpRoseAPI[6], trpRoseAPI[7], trpRoseAPI[8], trpRoseAPI[9], trpRoseAPI[10], trpRoseAPI[11], trpRoseAPI[12], trpRoseAPI[13], trpRoseAPI[14], trpRoseAPI[15], sort[0],  sort[1],  sort[2],  sort[3],  sort[4],  sort[5], sort[6], sort[7], sort[8], sort[9], sort[10], sort[11], sort[12], ))
+        except Exception :
+            pass
 
+
+
+def createClanJSONFromDB(clanJSON):
+    pass
 
 @slash_command(name= 'syncro_clan', description = 'syncroniser un clan a un channel')
 @slash_option(name= 'channel', description='channel', required=True, opt_type=OptionType.CHANNEL)
@@ -421,14 +482,95 @@ async def syncoClan(ctx : SlashContext ,channel:interactions.TYPE_MESSAGEABLE_CH
         resp.raise_for_status()
         resp = resp.json()
         clan = json.dumps(resp)
-        clan = json.loads(clan)
+        clanJSON = json.loads(clan)
         await ctx.send(content='syncronisation éffectué')
     except Exception:
         return await ctx.send(content=f"Le clan avec l'ID : {tagID} n'existe pas ! verifier bien l'ID du clan")
     
     while True:
-        
-    
+        cursor.execute(f"SELECT * FROM clanMembers{clanJSON['tag']}")
+        if cursor.fetchone() is None :
+            cursor.execute(f"CREATE TABLE clanMembers{clanJSON['tag']} (tag TEXT CHECK(LENGTH(tag) <= 20), \
+                           player TEXT CHECK(LENGTH(player) <= 30), \
+                           role TEXT CHECK(LENGTH(role) <= 20), \
+                           expLevel INTEGER CHECK(expLevel <= 600), \
+                           trophieLeague INTEGER, \
+                           étoilesDeGuerre INTEGER CHECK(étoilesDeGuerre <= 10000), \
+                           préferenceDeGuerre TEXT CHECK(LENGTH(préferenceDeGuerre) <= 4), \
+                           RagedBarbarian TEXT CHECK(LENGTH(RagedBarbarian) <= 5), \
+                           SuperArcher TEXT CHECK(LENGTH(SuperArcher) <= 5), \
+                           SneakyGoblin TEXT CHECK(LENGTH(SneakyGoblin) <= 5), \
+                           SuperWallBreaker TEXT CHECK(LENGTH(SuperWallBreaker) <= 5), \
+                           SuperGiant TEXT CHECK(LENGTH(SuperGiant) <= 5), \
+                           RocketBalloon TEXT CHECK(LENGTH(RocketBalloon) <= 5), \
+                           SuperWizard TEXT CHECK(LENGTH(SuperWizard) <= 5), \
+                           SuperDragon TEXT CHECK(LENGTH(SuperDragon) <= 5), \
+                           InfernoDragon TEXT CHECK(LENGTH(InfernoDragon) <= 5), \
+                           SuperMinion TEXT CHECK(LENGTH(SuperMinion) <= 5), \
+                           SuperValkyrie TEXT CHECK(LENGTH(SuperValkyrie) <= 5), \
+                           SuperWitch TEXT CHECK(LENGTH(SuperWitch) <= 5), \
+                           IceHound TEXT CHECK(LENGTH(IceHound) <= 5), \
+                           SuperBowler TEXT CHECK(LENGTH(SuperBowler) <= 5), \
+                           SuperHogRider TEXT CHECK(LENGTH(SuperHogRider) <= 5), \
+                           Barbare INTEGER CHECK(Barbare <= 35), \
+                           Archer INTEGER CHECK(Archer <= 35), \
+                           géant INTEGER CHECK(géant <= 35), \
+                           gobelin INTEGER CHECK(gobelin <= 35), \
+                           sapeur INTEGER CHECK(sapeur <= 35), \
+                           ballon INTEGER CHECK(ballon <= 35), \
+                           sorcier INTEGER CHECK(sorcier <= 35), \
+                           guérisseuse INTEGER CHECK(guérisseuse <= 35), \
+                           dragon INTEGER CHECK(dragon <= 35), \
+                           P.E.K.K.A INTEGER CHECK(P.E.K.K.A <= 35), \
+                           BébéDragon INTEGER CHECK(BébéDragon <= 35), \
+                           mineur INTEGER CHECK(mineur <= 35), \
+                           Edrag INTEGER CHECK(Edrag <= 35), \
+                           yeti INTEGER CHECK(yeti <= 35), \
+                           ChevaucheurDeDragon INTEGER CHECK(ChevaucheurDeDragon <= 35), \
+                           éléctroTitanide INTEGER CHECK(éléctroTitanide <= 35), \
+                           sortDeFoudre INTEGER CHECK(sortDeFoudre <= 35), \
+                           sortDeGuérison INTEGER CHECK(sortDeGuérison <= 35), \
+                           sortDeRage INTEGER CHECK(sortDeRage <= 35), \
+                           sortDeSaut INTEGER CHECK(sortDeSaut <= 35), \
+                           sortDeGel INTEGER CHECK(sortDeGel <= 35), \
+                           sortDeClonage INTEGER CHECK(sortDeClonage <= 35), \
+                           sortInvisibilité INTEGER CHECK(sortInvisibilité <= 35), \
+                           sortDeRappel INTEGER CHECK(sortDeRappel <= 35), \
+                           sortDePoison INTEGER CHECK(sortDePoison <= 35), \
+                           sortSismique INTEGER CHECK(sortSismique <= 35), \
+                           sortDePrécipitation INTEGER CHECK(sortDePrécipitation <= 35), \
+                           sortSquelettique INTEGER CHECK(sortSquelettique <= 35), \
+                           sortDeBat INTEGER CHECK(sortDeBat <= 35), \
+                           gargouille INTEGER CHECK(gargouille <= 35), \
+                           cochon INTEGER CHECK(cochon <= 35), \
+                           Valkyrie INTEGER CHECK(Valkyrie <= 35), \
+                           golem INTEGER CHECK(golem <= 35), \
+                           sorcière INTEGER CHECK(sorcière <= 35), \
+                           molosseDeLave INTEGER CHECK(molosseDeLave <= 35), \
+                           bouliste INTEGER CHECK(bouliste <= 35), \
+                           golemDeGlace INTEGER CHECK(golemDeGlace <= 35), \
+                           chasseuse INTEGER CHECK(chasseuse <= 35), \
+                           apprentiGardien INTEGER CHECK(apprentiGardien <= 35), \
+                           Broyeur INTEGER CHECK(Broyeur <= 35), \
+                           dirigeable INTEGER CHECK(dirigeable <= 35), \
+                           Démolisseur INTEGER CHECK(Démolisseur <= 35), \
+                           Caserne INTEGER CHECK(Caserne <= 35), \
+                           lanceBuches INTEGER CHECK(lanceBuches <= 35), \
+                           Catapulte INTEGER CHECK(Catapulte <= 35), \
+                           foreuse INTEGER CHECK(foreuse <= 35), \
+                           RoiDesBarbares INTEGER CHECK(RoiDesBarbares <= 150), \
+                           ReineDesArchères INTEGER CHECK(ReineDesArchères <= 150), \
+                           warden INTEGER CHECK(warden <= 150), \
+                           championne INTEGER CHECK(championne <= 75), \
+                           L.A.S.S.I INTEGER CHECK(L.A.S.S.I <= 35), \
+                           mightyYak INTEGER CHECK(mightyYak <= 35), \
+                           electroOwl INTEGER CHECK(electroOwl <= 35), \
+                           Unicorn INTEGER CHECK(Unicorn <= 35), \
+                           Frosty INTEGER CHECK(Frosty <= 35), \
+                           Diggy INTEGER CHECK(Diggy <= 35), \
+                           poisonLizard INTEGER CHECK(poisonLizard <= 35), \
+                           Phoenix INTEGER CHECK(Phoenix <= 35))")
+            
 
     
 
