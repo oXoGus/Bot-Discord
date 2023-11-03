@@ -10,11 +10,10 @@ from interactions.ext.paginators import Paginator
 from datetime import datetime, timezone
 from dateutil import parser
 import traceback
-from interactions import slash_command, SlashContext, Modal, ShortText, ParagraphText
+from interactions import slash_command, SlashContext, Modal, ShortText, ParagraphText, slash_channel_option
 import time
 import asyncio
 import math
-import timestamp
 from config import TOKEN, GDCBotheader, laboHeader, clanHeader, infoGeneraleHeader
 from trpData import betterTroops, trpRoseFR, trpRoseAPI, emojiTrpRoseFR, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji, labelsEmoji, clanType, ligueLDC
 
@@ -51,6 +50,9 @@ async def on_ready(): # quand le bod est pret
 async def rechercheJoueur(ctx): # la fonction qui est rattacher a cette commande 
     components: list[ActionRow] = [ActionRow(Button(style=ButtonStyle.BLURPLE, label='les joueurs ayant le plus de trophée', custom_id="trophy", ), Button(style=ButtonStyle.BLURPLE, label='les plus actifs dans les jeux de clans', custom_id="jdc"), Button(style=ButtonStyle.BLURPLE, label='les joueur dans un clan français ayant donné le plus de troupes', custom_id="don"))] #on crée la partie interactive du message 
     await ctx.send('selectionner les statistiques que vous désirer' , components=components) # on definis le contenue du message et on rattache la partie interactive du message 
+
+
+
 
 
 ################################################
@@ -405,6 +407,34 @@ async def p(ctx : SlashContext, tag : str) :
         except Exception: # si il y a une erreur qui n'est pas mentionner plus haut 
             await ctx.send("Erreur : veuillez réessayer plus tard.")
             traceback.print_exc()
+
+
+
+
+@slash_command(name= 'syncro_clan', description = 'syncroniser un clan a un channel')
+@slash_option(name= 'channel', description='channel', required=True, opt_type=OptionType.CHANNEL)
+@slash_option(name= 'tag', description='tag', required=True, opt_type=OptionType.STRING)
+async def syncoClan(ctx : SlashContext ,channel:interactions.TYPE_MESSAGEABLE_CHANNEL, tag):
+    tagID = tag[1:]
+    try:
+        resp = requests.get(url=f"https://api.clashofclans.com/v1/clans/%23{tagID}", headers=clanHeader)
+        resp.raise_for_status()
+        resp = resp.json()
+        clan = json.dumps(resp)
+        clan = json.loads(clan)
+        await ctx.send(content='syncronisation éffectué')
+    except Exception:
+        return await ctx.send(content=f"Le clan avec l'ID : {tagID} n'existe pas ! verifier bien l'ID du clan")
+    
+    while True:
+        
+    
+
+    
+
+
+        
+
 
 
 
