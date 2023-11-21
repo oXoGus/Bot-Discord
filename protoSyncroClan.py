@@ -6,11 +6,11 @@ import sqlite3
 
 
 while 1:
-    #try search table with the tag of the clan 
     #request clan 
     # request player data
     # i = i + 1
     try : 
+        #try search table with the tag of the clan
         # for player in clanMember    
         # if player already in the db 
         # update player json and i
