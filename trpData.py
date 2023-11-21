@@ -878,6 +878,19 @@ superToopsAPI =[
     "Super Hog Rider", 
 ]
 
+enginDeSiegeAPI = [
+    "Wall Wrecker", 
+    "Battle Blimp", 
+    "Stone Slammer", 
+    "Siege Barracks", 
+    "Log Launcher", 
+    "Flame Flinger", 
+    "Battle Drill",
+]
+
+
+
+
 clanMembersDB = [
     "tag", 
     "player", 
@@ -961,6 +974,3 @@ clanMembersDB = [
     "Phoenix"
 ]
 
-
-for i in range(len(trpNoirAPI)):
-    print(f"trpNoir[{i}], ")
