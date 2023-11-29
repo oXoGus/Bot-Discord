@@ -101,12 +101,10 @@ async def gdc(ctx : SlashContext, id):
             while currentwar['state'] == 'preparation':
                 starTime = currentwar['startTime']
                 starTime = parser.parse(starTime)
-                time_difference = starTime  -  datetime.now(timezone.utc)
-                hours = time_difference // 3600 
-                minutes = (time_difference % 3600) // 60
+                timestampStartTime = f"<t:{int(starTime.timestamp())}:R>"
                 preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
                 preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre commence dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre commence** {timestampStartTime}",  inline=False)
                 await prepartionMessage.edit(embed=preparationEmbed)
                 await asyncio.sleep(60)
                 response = requests.get(url, headers=GDCBotheader) 
@@ -115,28 +113,37 @@ async def gdc(ctx : SlashContext, id):
                 currentwar = json.loads(currentwar)
 
             if currentwar['state'] == 'inWar': # si le clan est dans une guerre 
+                endTime = currentwar['endTime']
+                endTime = parser.parse(endTime)
+                timestampEndTime = f"<t:{int(endTime.timestamp())}:R>"
+                try:
+                    preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                    preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                    preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine** {timestampEndTime}",  inline=False)
+                    await prepartionMessage.edit(embed=preparationEmbed)
+                except Exception :
+                    preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                    preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                    preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine** {timestampEndTime}",  inline=False)
+                    prepartionMessage = await channel.send(embed=preparationEmbed)
+
+
+                
                 messID=[]
                 for jsp in range(int(currentwar['teamSize']/5)):
-                    warMessage = await channel.send(content='yo !')
+                    warMessage = await channel.send(content='.')
                     messID.append(warMessage)
                     print(messID)      
   
             while currentwar['state'] == 'inWar':
                 endTime = currentwar['endTime']
                 endTime = parser.parse(endTime)
-                time_difference = endTime  -  datetime.now(timezone.utc)
-                hours = time_difference // 3600 
-                minutes = (time_difference % 3600) // 60
-                try:
-                    preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
-                    preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-                    preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
-                    await prepartionMessage.edit(embed=preparationEmbed)
-                except Exception :
-                    preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
-                    preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-                    preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
-                    prepartionMessage = await channel.send(embed=preparationEmbed)
+                timestampEndTime = f"<t:{int(endTime.timestamp())}:R>"
+                preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
+                preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine** {timestampEndTime}",  inline=False)
+                await prepartionMessage.edit(embed=preparationEmbed)
+                
 
                 for a in range(int(currentwar['teamSize']/5)):
                     clanValue=""
@@ -277,11 +284,11 @@ async def gdc(ctx : SlashContext, id):
                             messID.append(warMessage)
 
 
-                    await asyncio.sleep(60)
-                    response = requests.get(url, headers=GDCBotheader) 
-                    currentwar = response.json()  
-                    currentwar = json.dumps(currentwar)
-                    currentwar = json.loads(currentwar)
+                await asyncio.sleep(60)
+                response = requests.get(url, headers=GDCBotheader) 
+                currentwar = response.json()  
+                currentwar = json.dumps(currentwar)
+                currentwar = json.loads(currentwar)
                 
                 if currentwar['state'] == 'warEnded':
                     warEndedEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
@@ -298,6 +305,7 @@ async def gdc(ctx : SlashContext, id):
         except Exception:
             traceback.print_exc()
             await ctx.send('veuiller reessayer plus tard')
+            break
 
 
 
@@ -1071,7 +1079,12 @@ async def on_component(event: Component):
 async def ldc(ctx : SlashContext, tag):
     channel = ctx.channel    
     message = await channel.send(content="veuiller patienter")
-    warTagId = await ldc_find_war_tag_id(tag)
+    try :
+        warTagId = await ldc_find_war_tag_id(tag)
+    except : 
+        await ctx.send(content="Ce n'est pas l'heur des ldc ! refaites la commande quand ce sera le cas.")
+        await message.delete(0)
+        return
     await message.delete(0)
     while warTagId is not None:
         url = f"https://api.clashofclans.com/v1/clanwarleagues/wars/%23{warTagId}"
@@ -1083,12 +1096,10 @@ async def ldc(ctx : SlashContext, tag):
         opponentInfo = ldcWar['opponent']
         endTime = ldcWar['endTime']
         endTime = parser.parse(endTime)
-        time_difference = endTime  -  datetime.now(timezone.utc)
-        hours = time_difference.seconds // 3600 
-        minutes = (time_difference.seconds % 3600) // 60
+        timestampEndTime = f"<t:{int(endTime.timestamp())}:R>"
         preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
         preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-        preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+        preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine** {timestampEndTime}",  inline=False)
         prepartionMessage = await channel.send(embed=preparationEmbed)
         
 
