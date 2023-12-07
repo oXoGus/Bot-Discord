@@ -358,9 +358,9 @@ async def p(ctx : SlashContext, tag : str) :
             user = json.loads(user_json) 
             embed_profile = Embed(title=f"info génerale du joueur {user['tag']}", description=f"**psedo du joueur : {user['name']}**", color=interactions.Color.random(), timestamp=datetime.now())
             embed_profile.add_field(name="nombre de trophées du joueur :", value=f"{user['trophies']} {ligueAPI[user['league']['name']]}", inline=True)
-            embed_profile.add_field(name="nombre d'etoiles de guerre :", value=f"{user['warStars']} <:st:1138557349913706616>", inline=True)
+            embed_profile.add_field(name="nombre d'etoiles de guerre :", value=f"{user['warStars']} :star:", inline=True)
             CWLTotal = sorted(user['achievements'], key=lambda x : x['name'] != "War League Legend")[0]
-            embed_profile.add_field(name="nombre d'étoiles gagnée pendant les ligue de clans :", value=f"{CWLTotal['value']} <:st:1138557349913706616>", inline=True)
+            embed_profile.add_field(name="nombre d'étoiles gagnée pendant les ligue de clans :", value=f"{CWLTotal['value']} :star:", inline=True)
             embed_profile.add_field(name=f"nombre d'attaque gagnée cette saison : {user['attackWins']} <:cc:1138557308083908648>", value=f" ", inline=True)
             combatTotal = sorted(user['achievements'], key=lambda x : x['name'] != "Conqueror")[0]
             embed_profile.add_field(name="nombre de combat gagnée au total :", value=f"{combatTotal['value']} <:cc:1138557308083908648>", inline=True)

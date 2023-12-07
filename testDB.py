@@ -16,7 +16,7 @@ import time
 import asyncio
 import math
 from config import TOKEN, GDCBotheader, laboHeader, clanHeader, infoGeneraleHeader
-from trpData import betterTroops, trpRoseFR, enginDeSiegeAPI, trpRoseAPI, clanMembersDB, emojiTrpRoseFR, superToopsAPI, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji, labelsEmoji, clanType, ligueLDC
+from trpData import betterTroops, trpRoseFR, enginDeSiegeAPI, AllThingUpgradableAPI, trpRoseAPI, clanMembersDB, emojiTrpRoseFR, superToopsAPI, trpNoirFR, emojiTrpNoirFR , trpNoirAPI, hdvPNG, sortAPI, sortDataFR , emojiSortFR, laboPNG, herosAPI, hérosFR, emojiHero, ligueAPI, emojiFamillier, famillierAPI, herosthumbnail, emojiLabo, herostemoji, labelsEmoji, clanType, ligueLDC
 
 conn = sqlite3.connect('test.db') # connection a la base de donnée
 cursor = conn.cursor() # creation d'une variable pour interagire avec la base de donnée 
@@ -112,20 +112,16 @@ async def syncroClan(ctx : SlashContext ,channel:interactions.TYPE_MESSAGEABLE_C
         cursor.execute(f"SELECT * FROM clanMembers_{clanID}") #on cherche si la table existe deja (exeption si la table n'existe pas)
     except:
         insertPlayerBD(clanJSON, clanID)
-    UpdateDB(channel, clanJSON, clanID)
-    
-    
-    
 
     while True:
-        previewPlayerData = []
+        previewPlayerDataList = []
         cursor.execute(f"SELECT * FROM clanMembers_{clanID}")
         for player in cursor.fetchall():
-            previewPlayerData.append(json.loads(player[1]))
+            previewPlayerDataList.append(json.loads(player[1]))
 
         clanJSON = clanRequests(clanID)
 
-        nextPlayerData = []
+        nextPlayerDataList = []
         member = clanJSON['memberList'] # on recupere la liste des membre
         for stat in member: # pour chaque membre
             playerID = stat['tag'][1:] # on retire le hastag
@@ -133,11 +129,40 @@ async def syncroClan(ctx : SlashContext ,channel:interactions.TYPE_MESSAGEABLE_C
             time.sleep(1)            # on recupere les donnée pour la database
             player_json = responsePlayer.json()
             playerJSON = json.dumps(player_json)
-            nextPlayerData.append(json.loads(playerJSON))
+            nextPlayerDataList.append(json.loads(playerJSON))
 
-        for n in len(previewPlayerData):
-            if previewPlayerData[n][...] != nextPlayerData[n][...]:
-                channel.send("message")
+        for n in len(previewPlayerDataList):
+            previewPlayerData = sorted(previewPlayerDataList, key= lambda x : x['tag'] != nextPlayerDataList[n]['tag'])[0] 
+            nextPlayerData = nextPlayerDataList[n]
+            if previewPlayerData['tag'] == nextPlayerData['tag']:# on verifie bien que les donné sont pour le meme joueur 
+                for i in len(trpRoseAPI): # trpRose
+                    previewData = sorted(previewPlayerData['troops'], key= lambda x : x['name'] != trpRoseAPI[i])[0] # on prend un par un les trp roses
+                    nextData = sorted(nextPlayerData['troops'], key= lambda x : x['name'] != trpRoseAPI[i])[0]
+                    if previewData['name'] == trpRoseAPI[i] and nextData['name'] == trpRoseAPI[i]: # si les deux correspondes
+                        if previewData['level'] != nextData['level']: 
+                            channel.send(f"{emojiTrpRoseFR[i]} {nextPlayerData['name']} a amélioré ses {trpRoseFR[i]} au niveau {nextData['level']} !")
+                    elif nextData['name'] == trpRoseAPI[i] and not previewData['name'] == trpRoseAPI[i]:
+                        channel.send(f"{emojiTrpRoseFR[i]} {nextPlayerData['name']} a débloquer les {trpRoseFR[i]} !")
+
+                for i in len(trpNoirAPI): # trpNoir
+                    previewData = sorted(previewPlayerData['troops'], key= lambda x : x['name'] != trpNoirAPI[i])[0] # on prend un par un les trp roses
+                    nextData = sorted(nextPlayerData['troops'], key= lambda x : x['name'] != trpNoirAPI[i])[0]
+                    if previewData['name'] == trpNoirAPI[i] and nextData['name'] == trpNoirAPI[i]: # si les deux correspondes
+                        if previewData['level'] != nextData['level']: 
+                            channel.send(f"{emojiTrpNoirFR[i]} {nextPlayerData['name']} a amélioré ses {trpNoirFR[i]} au niveau {nextData['level']} !")
+                    elif nextData['name'] == trpNoirAPI[i] and not previewData['name'] == trpNoirAPI[i]:
+                        channel.send(f"{emojiTrpNoirFR[i]} {nextPlayerData['name']} a débloquer les {trpNoirFR[i]} !")
+                
+                for i in len(herosAPI): #sort
+                    previewData = sorted(previewPlayerData['heroes'], key= lambda x : x['name'] != herosAPI[i])[0] # on prend un par un les trp roses
+                    nextData = sorted(nextPlayerData['heroes'], key= lambda x : x['name'] != herosAPI[i])[0]
+                    if previewData['name'] == herosAPI[i] and nextData['name'] == herosAPI[i]: # si les deux correspondes
+                        if previewData['level'] != nextData['level']: 
+                            channel.send(f"{herostemoji[i]} {nextPlayerData['name']} a amélioré ses {her[i]} au niveau {nextData['level']} !")
+                    elif nextData['name'] == herosAPI[i] and not previewData['name'] == herosAPI[i]:
+                        channel.send(f"{herostemoji[i]} {nextPlayerData['name']} a débloquer les {her[i]} !")
+            else:
+                pass
         """
         faire pour tout ce qui peut etre amélorer 
         """

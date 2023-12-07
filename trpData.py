@@ -447,9 +447,9 @@ emojiFamillier = {
 }
 
 hérosFR = [
-    "RoiDesBarbares",
-    "ReineDesArchères",
-    "warden",
+    "Roi des barbares",
+    "Reine des archères",
+    "Grand Gardien",
     "championne",
 ]
 
@@ -589,19 +589,19 @@ labelsEmoji = {
 }
 
 sortDataFR = [
-            "sortDeFoudre",
-            "sortDeGuérison",
-            "sortDeRage",
-            "sortDeSaut",
-            "sortDeGel",
-            "sortDeClonage",
-            "sortInvisibilité",
-            "sortDeRappel",
-            "sortDePoison",
-            "sortSismique",
-            "sortDePrécipitation",
-            "sortSquelettique",
-            "sortDeBat",
+            "sort de foudre",
+            "sort de guérison",
+            "sort de rage",
+            "sort de saut",
+            "sort de gel",
+            "sort de clonage",
+            "sort d'invisibilité",
+            "sort de rappel",
+            "sort de poison",
+            "sort Sismique",
+            "sort de  précipitation",
+            "sort Squelettique",
+            "sort de bat",
 ]
 
 sortAPI = [
@@ -650,7 +650,7 @@ trpRoseFR = ["Barbare",
             "mineur",
             "E-drag",
             "yeti",
-            "ChevaucheurDeDragon",
+            "Chevaucheur de dragon",
             "éléctro-titanide",]
 
 emojiTrpNoirFR = {
@@ -675,7 +675,7 @@ trpNoirFR = ["gargouille",
             "bouliste",
             "golem de glace",
             "chasseuse",
-            "apprentiGardien",
+            "apprenti Gardien",
             ]
 
 trpNoirAPI = ["Minion",
@@ -722,7 +722,7 @@ emojiTrpRoseFR = {
                 "mineur" : "<:pp:1136643057899548752>",
                 "E-drag" : "<:pp:1136643122865131620>",
                 "yeti" : "<:pp:1136643168260083793>",
-                "ChevaucheurDeDragon" : "<:pp:1136643214468730920>",
+                "Chevaucheur de dragon" : "<:pp:1136643214468730920>",
                 "éléctro-titanide" : "<:pp:1136643288716279878>",
             }
         
@@ -974,3 +974,63 @@ clanMembersDB = [
     "Phoenix"
 ]
 
+AllThingUpgradableAPI = [
+    "Wall Wrecker", 
+    "Battle Blimp", 
+    "Stone Slammer", 
+    "Siege Barracks", 
+    "Log Launcher", 
+    "Flame Flinger", 
+    "Battle Drill",
+    "L.A.S.S.I",
+    "Mighty Yak",
+    "Electro Owl",
+    "Unicorn",
+    "Frosty",
+    "Diggy",
+    "Poison Lizard",
+    "Phoenix",
+    "Barbarian King",
+    "Archer Queen",
+    "Grand Warden",
+    "Royal Champion",
+    "Lightning Spell",
+    "Healing Spell",
+    "Rage Spell",
+    "Jump Spell",
+    "Freeze Spell",
+    "Clone Spell",
+    "Invisibility Spell",
+    "Recall Spell",
+    "Poison Spell",
+    "Earthquake Spell",
+    "Haste Spell",
+    "Skeleton Spell",
+    "Bat Spell",
+    "Minion",
+    "Hog Rider",
+    "Valkyrie",
+    "Golem",
+    "Witch",
+    "Lava Hound",
+    "Bowler",
+    "Ice Golem",
+    "Headhunter",
+    "Apprentice Warden",
+    "Barbarian",
+    "Archer",
+    "Giant",
+    "Goblin",
+    "Wall Breaker",
+    "Balloon",
+    "Wizard",
+    "Healer",
+    "Dragon",
+    "P.E.K.K.A",
+    "Baby Dragon",
+    "Miner",
+    "Electro Dragon",
+    "Yeti",
+    "Dragon Rider",
+    "Electro Titan",
+]
