@@ -1131,19 +1131,17 @@ async def ldc(ctx : SlashContext, tag):
 
             endTime = ldcWar['endTime']
             endTime = parser.parse(endTime)
-            time_difference = endTime  -  datetime.now(timezone.utc)
-            hours = time_difference.seconds // 3600 
-            minutes = (time_difference.seconds % 3600) // 60
+            endTimeTimestamp = f"<t:{int(endTime.timestamp())}:R>"
             try:
                 preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
                 preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine** {endTimeTimestamp}",  inline=False)
                 await prepartionMessage.edit(embed=preparationEmbed)
             except Exception :
                 prepartionMessage.delete()
                 preparationEmbed = Embed(title = f"{clanInfo['name']}   {clanInfo['stars']}          vs           {opponentInfo['stars']}   {opponentInfo['name']}", color=interactions.Color.from_rgb(255, 128, 0))
                 preparationEmbed.set_thumbnail(url=clanInfo['badgeUrls']['small'])
-                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine dans : {int(hours)} heures et {int(minutes)} minutes**",  inline=False)
+                preparationEmbed.add_field(name=f"pourcentage de destruction : {clanInfo['destructionPercentage']}%    |     {opponentInfo['destructionPercentage']}%", value=f"**attaques : {clanInfo['attacks']}    |     {opponentInfo['attacks']}" + f"\nla guerre se termine** {endTimeTimestamp}",  inline=False)
                 prepartionMessage = await channel.send(embed=preparationEmbed)
 
 
