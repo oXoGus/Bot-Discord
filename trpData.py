@@ -461,9 +461,9 @@ herosAPI = [
 ]
 
 emojiHero = {
-    "RoiDesBarbares" : "<:ee:1136954729931481148>",
-    "ReineDesArchères" : "<:ee:1136954748164128839>",
-    "warden" : "<:ee:1136954785799618590>",
+    "Roi des barbares" : "<:ee:1136954729931481148>",
+    "Reine des archères" : "<:ee:1136954748164128839>",
+    "Grand Gardien" : "<:ee:1136954785799618590>",
     "championne" : "<:ee:1136954828828967006>",
 }
 
